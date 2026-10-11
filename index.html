@@ -89,7 +89,7 @@ footer{text-align:center;font-size:11px;color:var(--t3);padding:6px 0 0}
 </div>
 
 <main>
-  <div id="cargando">Cargando catálogos…</div>
+  <div id="cargando">Cargando catálogos…<br><small>La primera vez del día puede tardar hasta un minuto; después abre de inmediato.</small></div>
   <div id="errorCarga" class="aviso error oculto"></div>
 
   <form id="f" class="oculto" onsubmit="return false" autocomplete="off">
@@ -254,7 +254,7 @@ footer{text-align:center;font-size:11px;color:var(--t3);padding:6px 0 0}
 <script>
 /* ══════════════ CONFIGURACIÓN (completar al desplegar; ver C-03_GUIA_DE_DESPLIEGUE.md) ══════════════ */
 const CONFIG = {
-  VERSION: 'B2-2.6',
+  VERSION: 'B2-2.7',
   SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwi6BllrgobQjspAHppkSxqTiwubOYMBuJEQJ3Iq6KsomEeRhyfSqvYLtOFPEWRTXY/exec',   // proyecto Apps Script con Problematicas.gs
   FORM_C_URL: 'https://docs.google.com/forms/d/1RGfVaGkzmmUNXLKkWn1Wm2LsNo_8K48yCzBN41Vx6XE/viewform',
   ENTRY: { PROBLEMATICA: '', DESCRIPCION: '', UPZ: '', LINEA_PRINCIPAL: '', EJE: '' },   // entry.N del Agendamiento (Paso 7 de la guía)
@@ -298,9 +298,11 @@ async function cargar() {
   try {
     if (fresco) { CAT = cache.cat; FUN = cache.fun; }
     else {
-      const c = await api({ recurso: 'catalogos', tabla: 'TERRITORIO,ALIAS_BARRIO,PROBLEMATICAS,FACTORES,EJES' });
-      const f = await api({ recurso: 'funcionarios' });
-      CAT = c; FUN = f.funcionarios || [];
+      let c;
+      try { c = await api({ recurso: 'inicio' }); }   // una sola consulta (catálogos + funcionarios)
+      catch (e1) { c = await api({ recurso: 'catalogos', tabla: 'TERRITORIO,ALIAS_BARRIO,PROBLEMATICAS,FACTORES,EJES' });
+                   c.funcionarios = (await api({ recurso: 'funcionarios' })).funcionarios; }
+      CAT = c; FUN = c.funcionarios || [];
       guardar('cv360_cat', { t: Date.now(), cat: CAT, fun: FUN });
     }
   } catch (e) {
