@@ -254,7 +254,7 @@ footer{text-align:center;font-size:11px;color:var(--t3);padding:6px 0 0}
 <script>
 /* ══════════════ CONFIGURACIÓN (completar al desplegar; ver C-03_GUIA_DE_DESPLIEGUE.md) ══════════════ */
 const CONFIG = {
-  VERSION: 'B2-2.8',
+  VERSION: 'B2-2.9',
   SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwi6BllrgobQjspAHppkSxqTiwubOYMBuJEQJ3Iq6KsomEeRhyfSqvYLtOFPEWRTXY/exec',   // proyecto Apps Script con Problematicas.gs
   FORM_C_URL: 'https://docs.google.com/forms/d/1RGfVaGkzmmUNXLKkWn1Wm2LsNo_8K48yCzBN41Vx6XE/viewform',
   ENTRY: { PROBLEMATICA: '', DESCRIPCION: '', UPZ: '', LINEA_PRINCIPAL: '', EJE: '' },   // entry.N del Agendamiento (Paso 7 de la guía)
@@ -360,8 +360,15 @@ function marcarChips() { document.querySelectorAll('.chip').forEach(c => c.class
 function elegirVerificacion(v) {
   verificacion = v;
   document.querySelectorAll('#verificacion .opcion').forEach(o => o.classList.toggle('sel', o.dataset.v === v));
+  // En terreno el GPS es obligatorio: si había un motivo "sin GPS", se retira y se pide capturar
+  if (v === 'TERRENO' && $('lat').value === '' && !$('motivoBox').classList.contains('oculto') && !restaurando) {
+    $('motivoBox').classList.add('oculto'); $('motivo').value = ''; $('motivoOtro').value = ''; $('motivoOtro').classList.add('oculto');
+    mostrar('gpsAviso', AVISO_GPS_TERRENO, 'alerta');
+  }
   cambio();
 }
+const AVISO_GPS_TERRENO = 'En <b>verificación en terreno</b> el GPS es obligatorio: párese en el punto y pulse «📍 Capturar». '
+  + 'Si no es posible capturarlo, registre como «Reporte desde oficina».';
 
 /* ══════════════ IDENTIFICACIÓN: área → funcionarios; acompañantes ══════════════ */
 const claveArea = a => { const n = norm(a); return n.indexOf('GESTORES') === 0 ? 'GESTORES DE CONVIVENCIA' : n; };
@@ -604,7 +611,10 @@ function revisarGps() {
   pintarSugerenciaMapa(); actualizarMapa();
   cambio();
 }
-function pedirMotivo() { $('motivoBox').classList.remove('oculto'); cambio(); }
+function pedirMotivo() {
+  if (verificacion === 'TERRENO') { mostrar('gpsAviso', ($('gpsAviso').classList.contains('oculto') ? '' : $('gpsAviso').innerHTML.replace(/ Si no es posible, indique el motivo\.|: indique el motivo\./, '.') + '<br>') + AVISO_GPS_TERRENO, 'alerta'); cambio(); return; }
+  $('motivoBox').classList.remove('oculto'); cambio();
+}
 
 /* ══════════════ FOTOS (se reducen en el teléfono: ~200 KB; al redibujarlas se quitan los metadatos de ubicación) ══════════════ */
 function agregarFoto(archivo) {
@@ -649,6 +659,7 @@ function validar() {
   else if (!barrioElegido.ZONA) e.push('El barrio elegido está en revisión de zona');
   if ($('lugar').value === 'Otro' && !$('lugarOtro').value.trim()) e.push('Escriba cuál es el lugar');
   if ($('lat').value !== '' && !gpsDentro()) e.push('El punto GPS está fuera de San Cristóbal: no se puede registrar');
+  else if ($('lat').value === '' && verificacion === 'TERRENO') e.push('En verificación en terreno el GPS es obligatorio: capture la ubicación (o elija «Reporte desde oficina»)');
   else if ($('lat').value === '' && !$('motivo').value) e.push('GPS: capture la ubicación (o, si no es posible, indique el motivo)');
   if ($('motivo').value === 'Otro' && !$('motivoOtro').value.trim()) e.push('Escriba el motivo del GPS');
   if (!sel.prob.size) e.push('Marque al menos una problemática');
@@ -875,7 +886,8 @@ document.addEventListener('DOMContentLoaded', () => {
   $('motivo').addEventListener('change', () => { $('motivoOtro').classList.toggle('oculto', $('motivo').value !== 'Otro'); if ($('motivo').value !== 'Otro') $('motivoOtro').value = ''; cambio(); });
   $('principal').addEventListener('change', () => { mostrarLinea(); cambio(); });
   $('btnGps').addEventListener('click', capturarGps);
-  $('btnSinGps').addEventListener('click', () => { $('lat').value = ''; $('lon').value = ''; barrioMapa = ''; ocultar('mapaSug'); mostrar('gpsAviso', 'Indique por qué no se pudo capturar el GPS.', 'alerta'); pedirMotivo(); });
+  $('btnSinGps').addEventListener('click', () => { if (verificacion === 'TERRENO') { mostrar('gpsAviso', AVISO_GPS_TERRENO, 'alerta'); return; }   // v2.9: en terreno no hay "sin GPS"
+    $('lat').value = ''; $('lon').value = ''; barrioMapa = ''; ocultar('mapaSug'); mostrar('gpsAviso', 'Indique por qué no se pudo capturar el GPS.', 'alerta'); pedirMotivo(); });
   $('fecha').addEventListener('change', () => { if ($('fecha').value > hoyISO()) { mostrar('errores', 'La fecha del hecho no puede ser posterior a hoy.', 'error'); $('fecha').value = ''; } cambio(); });
   $('btnFoto').addEventListener('click', () => $('fotoInput').click());
   $('fotoInput').addEventListener('change', e => { agregarFoto(e.target.files[0]); e.target.value = ''; });
