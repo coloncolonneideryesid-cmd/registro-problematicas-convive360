@@ -233,7 +233,32 @@ footer{text-align:center;font-size:11px;color:var(--t3);padding:6px 0 0}
     </div>
     <div id="agendarNota" class="ayuda" style="margin-top:8px"></div>
   </div></section>
-  <footer>CONVIVE 360° · Formulario de problemáticas · <span id="ver"></span></footer>
+  <section id="descarte" class="sec oculto"><h2><span class="n">✕</span>Descartar un caso POR VALIDAR</h2><div class="cuerpo">
+    <div class="aviso info">Úselo solo si fue a verificar un caso <b>POR VALIDAR</b> y la situación no existe, o si la información era errónea o estaba duplicada.
+      El descarte es definitivo y queda en el historial con su nombre.</div>
+    <div class="dos" style="margin-top:12px">
+      <div class="campo"><label class="t req" for="dArea">Área</label>
+        <select id="dArea"><option value="">Seleccione…</option><option>Seguridad</option><option>Justicia Social</option><option>Tejido Social</option>
+          <option>Territorio Confiable</option><option>Gestores de Convivencia</option></select></div>
+      <div class="campo"><label class="t req" for="dFun">Funcionario que descarta</label><select id="dFun"><option value="">Elija primero el área…</option></select></div>
+    </div>
+    <div class="campo"><label class="t req" for="dCodigo">Código del caso</label>
+      <div class="gps" style="grid-template-columns:1fr auto"><input type="text" id="dCodigo" maxlength="16" placeholder="DT-AAAAMMDD-NNN o DTH-…" style="text-transform:uppercase">
+        <button type="button" class="btn az" id="btnConsultar">Consultar</button></div>
+      <div id="dCaso" class="aviso oculto"></div></div>
+    <div id="dDatos" class="oculto">
+      <div class="campo"><label class="t req" for="dMotivo">Motivo del descarte</label>
+        <select id="dMotivo"><option value="">Seleccione…</option><option>No se encontró la situación en el punto</option><option>Información errónea o incompleta</option>
+          <option>Duplicado de otro caso</option><option>Otro</option></select></div>
+      <div class="campo"><label class="t" id="dObsLbl" for="dObs">Observación</label>
+        <textarea id="dObs" maxlength="300" class="pii" placeholder="Qué encontró en el punto. Si es duplicado, el código del otro caso. Sin datos personales."></textarea></div>
+      <button type="button" class="btn" id="btnDescartar" style="background:var(--rojo);color:#fff;width:100%">Descartar este caso</button>
+    </div>
+    <div id="dResultado" class="aviso oculto"></div>
+    <button type="button" class="btn gr" id="btnVolverDesc" style="margin-top:12px">← Volver al formulario</button>
+  </div></section>
+  <footer>CONVIVE 360° · Formulario de problemáticas · <span id="ver"></span><br>
+    <a href="#" id="lnkDescartar" style="color:var(--t3)">¿Fue a verificar un caso y no encontró la situación? Descartar un caso</a></footer>
 </main>
 
 <div id="modal" class="oculto"><div class="caja">
@@ -254,7 +279,7 @@ footer{text-align:center;font-size:11px;color:var(--t3);padding:6px 0 0}
 <script>
 /* ══════════════ CONFIGURACIÓN (completar al desplegar; ver C-03_GUIA_DE_DESPLIEGUE.md) ══════════════ */
 const CONFIG = {
-  VERSION: 'B2-2.9',
+  VERSION: 'B2-3.0',
   SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwi6BllrgobQjspAHppkSxqTiwubOYMBuJEQJ3Iq6KsomEeRhyfSqvYLtOFPEWRTXY/exec',   // proyecto Apps Script con Problematicas.gs
   FORM_C_URL: 'https://docs.google.com/forms/d/1RGfVaGkzmmUNXLKkWn1Wm2LsNo_8K48yCzBN41Vx6XE/viewform',
   ENTRY: { PROBLEMATICA: '', DESCRIPCION: '', UPZ: '', LINEA_PRINCIPAL: '', EJE: '' },   // entry.N del Agendamiento (Paso 7 de la guía)
@@ -850,6 +875,62 @@ function enlaceAgendar(d) {
   if (E.EJE && d.caso.EJE) p.set(E.EJE, d.caso.EJE);
   return CONFIG.FORM_C_URL + '?' + p.toString();
 }
+/* ══════════════ DESCARTAR UN CASO POR VALIDAR (v3.0) ══════════════ */
+let casoDesc = null;
+function abrirDescarte() {
+  ['f', 'exito', 'barraEnviar'].forEach(id => $(id).classList.add('oculto'));
+  $('descarte').classList.remove('oculto'); ['dCaso', 'dResultado'].forEach(ocultar); $('dDatos').classList.add('oculto');
+  casoDesc = null; $('dCodigo').value = ''; $('dMotivo').value = ''; $('dObs').value = '';
+  const ult = leer('cv360_ultimo');
+  if (ult && ult.area) { $('dArea').value = ult.area; pintarFunDesc(); if (ult.fun) $('dFun').value = ult.fun; }
+  window.scrollTo(0, 0);
+}
+function cerrarDescarte() {
+  $('descarte').classList.add('oculto'); $('f').classList.remove('oculto'); $('barraEnviar').classList.remove('oculto'); window.scrollTo(0, 0);
+}
+function pintarFunDesc() {
+  const area = $('dArea').value, lista = area ? FUN.filter(f => claveArea(f.AREA) === claveArea(area)) : [];
+  opciones('dFun', lista, f => f.ID_FUNCIONARIO, f => f.NOMBRE_VISIBLE, !area ? 'Elija primero el área…' : (lista.length ? 'Seleccione…' : 'No hay funcionarios activos en esta área'));
+}
+async function consultarDescarte() {
+  const cod = $('dCodigo').value.trim().toUpperCase(); $('dCodigo').value = cod;
+  ocultar('dResultado'); $('dDatos').classList.add('oculto'); casoDesc = null;
+  if (!/^DTH?-\d{8}-\d{3}$/.test(cod)) { mostrar('dCaso', 'Escriba un código válido: DT-AAAAMMDD-NNN o DTH-AAAAMMDD-NNN.', 'error'); return; }
+  mostrar('dCaso', 'Consultando…', 'info');
+  try {
+    const r = await fetch(CONFIG.SCRIPT_URL + '?' + new URLSearchParams({ codigo: cod }).toString()).then(x => x.json());
+    if (r.status === 'not_found') { mostrar('dCaso', 'No existe un caso con el código ' + cod + '.', 'error'); return; }
+    if (r.status !== 'ok') throw new Error(r.msg || 'respuesta inválida');
+    const p = (CAT.PROBLEMATICAS.find(x => x.COD_PROBLEMATICA === r.COD_PROBLEMATICA) || {}).SUBTIPO || r.COD_PROBLEMATICA;
+    const b = (CAT.TERRITORIO.find(x => x.COD_BARRIO === r.COD_BARRIO) || {}).NOMBRE_VISIBLE || r.COD_BARRIO || 'barrio pendiente de código';
+    const desc = '<b>' + r.ID_PROBLEMATICA + '</b> · ' + (r.COD_AREA_CASO || '') + '<br>' + p + ' · ' + b + ' (UPZ ' + r.UPZ + ')<br>Estado: <b>' + r.ESTADO + '</b> · '
+      + r.N_REPORTES + ' reporte(s) · desde ' + String(r.FECHA_HECHO).slice(0, 10);
+    if (String(r.ESTADO).toUpperCase() !== 'POR VALIDAR') { mostrar('dCaso', desc + '<br>⛔ Solo se pueden descartar casos <b>POR VALIDAR</b>.', 'alerta'); return; }
+    casoDesc = r.ID_PROBLEMATICA; mostrar('dCaso', desc, 'info'); $('dDatos').classList.remove('oculto');
+  } catch (e) { mostrar('dCaso', 'No hay conexión con el servicio: el descarte necesita señal. Intente de nuevo.', 'error'); }
+}
+async function descartar() {
+  const e = [];
+  if (!$('dFun').value) e.push('elija su área y su nombre');
+  if (!casoDesc) e.push('consulte el caso');
+  if (!$('dMotivo').value) e.push('elija el motivo');
+  if (['Otro', 'Duplicado de otro caso'].indexOf($('dMotivo').value) >= 0 && $('dObs').value.trim().length < 5)
+    e.push($('dMotivo').value === 'Otro' ? 'escriba el motivo en la observación' : 'escriba en la observación el código del caso que se repite');
+  if (tienePii($('dObs').value)) e.push('quite teléfonos, correos o documentos de la observación');
+  if (e.length) { mostrar('dResultado', 'Revise: ' + e.join(' · '), 'error'); return; }
+  if (!window.confirm('¿Descartar el caso ' + casoDesc + '? Esta acción es definitiva y queda en el historial.')) return;
+  const b = $('btnDescartar'); b.disabled = true; b.textContent = 'Descartando…';
+  try {
+    const d = await enviarPost({ accion: 'actualizar_estado', id_funcionario: $('dFun').value, codigo: casoDesc, estado_nuevo: 'DESCARTADO',
+      motivo_descarte: $('dMotivo').value, observacion: $('dObs').value.trim() });
+    if (d.status !== 'ok') { mostrar('dResultado', 'No se pudo descartar: ' + (d.errores || [d.msg]).join(' · '), 'error'); return; }
+    guardar('cv360_ultimo', { area: $('dArea').value, fun: $('dFun').value });
+    mostrar('dResultado', '✔ El caso <b>' + d.codigo + '</b> quedó <b>DESCARTADO</b>. El cambio quedó en el historial de estados.', 'ok');
+    $('dDatos').classList.add('oculto'); ocultar('dCaso'); casoDesc = null;
+  } catch (err) { mostrar('dResultado', 'No hay conexión con el servicio: el descarte necesita señal. Intente de nuevo.', 'error'); }
+  finally { b.disabled = false; b.textContent = 'Descartar este caso'; }
+}
+
 /** Formulario nuevo. mismoBarrio = conserva UPZ, barrio y fecha (además de área, funcionario, acompañantes, terreno/oficina y fuente). */
 function nuevo(mismoBarrio) {
   const mantener = mismoBarrio ? ['area', 'funcionario', 'fecha', 'fuente', 'upz'] : ['area', 'funcionario'];
@@ -895,6 +976,13 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('textarea, input[type=text]').forEach(el => el.addEventListener('input', cambio));
   $('btnEnviar').addEventListener('click', enviar);
   $('btnOtra').addEventListener('click', () => nuevo(false));
+  $('lnkDescartar').addEventListener('click', ev => { ev.preventDefault(); abrirDescarte(); });
+  $('btnVolverDesc').addEventListener('click', cerrarDescarte);
+  $('dArea').addEventListener('change', pintarFunDesc);
+  $('btnConsultar').addEventListener('click', consultarDescarte);
+  $('dCodigo').addEventListener('keydown', ev => { if (ev.key === 'Enter') { ev.preventDefault(); consultarDescarte(); } });
+  $('dMotivo').addEventListener('change', () => { $('dObsLbl').classList.toggle('req', ['Otro', 'Duplicado de otro caso'].indexOf($('dMotivo').value) >= 0); });
+  $('btnDescartar').addEventListener('click', descartar);
   $('btnMismoBarrio').addEventListener('click', () => nuevo(true));
   $('btnCancelarModal').addEventListener('click', cerrarModal);
   window.addEventListener('online', procesarCola);
