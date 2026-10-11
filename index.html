@@ -279,7 +279,7 @@ footer{text-align:center;font-size:11px;color:var(--t3);padding:6px 0 0}
 <script>
 /* ══════════════ CONFIGURACIÓN (completar al desplegar; ver C-03_GUIA_DE_DESPLIEGUE.md) ══════════════ */
 const CONFIG = {
-  VERSION: 'B2-3.0',
+  VERSION: 'B2-3.1',
   SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwi6BllrgobQjspAHppkSxqTiwubOYMBuJEQJ3Iq6KsomEeRhyfSqvYLtOFPEWRTXY/exec',   // proyecto Apps Script con Problematicas.gs
   FORM_C_URL: 'https://docs.google.com/forms/d/1RGfVaGkzmmUNXLKkWn1Wm2LsNo_8K48yCzBN41Vx6XE/viewform',
   ENTRY: { PROBLEMATICA: '', DESCRIPCION: '', UPZ: '', LINEA_PRINCIPAL: '', EJE: '' },   // entry.N del Agendamiento (Paso 7 de la guía)
@@ -905,6 +905,7 @@ async function consultarDescarte() {
     const b = (CAT.TERRITORIO.find(x => x.COD_BARRIO === r.COD_BARRIO) || {}).NOMBRE_VISIBLE || r.COD_BARRIO || 'barrio pendiente de código';
     const desc = '<b>' + r.ID_PROBLEMATICA + '</b> · ' + (r.COD_AREA_CASO || '') + '<br>' + p + ' · ' + b + ' (UPZ ' + r.UPZ + ')<br>Estado: <b>' + r.ESTADO + '</b> · '
       + r.N_REPORTES + ' reporte(s) · desde ' + String(r.FECHA_HECHO).slice(0, 10);
+    if (String(r.ESTADO).toUpperCase() === 'DESCARTADO') { mostrar('dCaso', desc + '<br>ℹ Este caso <b>ya está DESCARTADO</b>: no hay que hacer nada.', 'info'); return; }
     if (String(r.ESTADO).toUpperCase() !== 'POR VALIDAR') { mostrar('dCaso', desc + '<br>⛔ Solo se pueden descartar casos <b>POR VALIDAR</b>.', 'alerta'); return; }
     casoDesc = r.ID_PROBLEMATICA; mostrar('dCaso', desc, 'info'); $('dDatos').classList.remove('oculto');
   } catch (e) { mostrar('dCaso', 'No hay conexión con el servicio: el descarte necesita señal. Intente de nuevo.', 'error'); }
@@ -923,11 +924,15 @@ async function descartar() {
   try {
     const d = await enviarPost({ accion: 'actualizar_estado', id_funcionario: $('dFun').value, codigo: casoDesc, estado_nuevo: 'DESCARTADO',
       motivo_descarte: $('dMotivo').value, observacion: $('dObs').value.trim() });
+    if (d.ya_descartado) {   // el mismo descarte llegó antes (otra pestaña, otro celular o un reintento): no es un error
+      mostrar('dResultado', 'ℹ El caso <b>' + casoDesc + '</b> ya estaba <b>DESCARTADO</b> (el descarte ya había llegado antes). No hay que hacer nada.', 'info');
+      $('dDatos').classList.add('oculto'); ocultar('dCaso'); casoDesc = null; return;
+    }
     if (d.status !== 'ok') { mostrar('dResultado', 'No se pudo descartar: ' + (d.errores || [d.msg]).join(' · '), 'error'); return; }
     guardar('cv360_ultimo', { area: $('dArea').value, fun: $('dFun').value });
     mostrar('dResultado', '✔ El caso <b>' + d.codigo + '</b> quedó <b>DESCARTADO</b>. El cambio quedó en el historial de estados.', 'ok');
     $('dDatos').classList.add('oculto'); ocultar('dCaso'); casoDesc = null;
-  } catch (err) { mostrar('dResultado', 'No hay conexión con el servicio: el descarte necesita señal. Intente de nuevo.', 'error'); }
+  } catch (err) { mostrar('dResultado', 'No hay conexión con el servicio: el descarte necesita señal. Antes de intentar de nuevo, pulse «Consultar»: el descarte pudo haber llegado.', 'error'); }
   finally { b.disabled = false; b.textContent = 'Descartar este caso'; }
 }
 
