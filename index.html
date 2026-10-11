@@ -72,7 +72,7 @@ textarea{min-height:70px;resize:vertical}
 .caso{border:1.5px solid var(--borde);border-radius:8px;padding:10px 12px;margin-top:8px;cursor:pointer;font-size:13.5px}
 .caso.sel{border-color:var(--azul);background:var(--azul-l)}
 footer{text-align:center;font-size:11px;color:var(--t3);padding:6px 0 0}
-#mapa{height:320px;border-radius:8px;margin-top:8px;border:1px solid var(--borde)}
+#mapa{height:320px;border-radius:8px;margin-top:8px;border:1px solid var(--borde);position:relative;z-index:0}   /* z-index 0: el mapa no tapa el encabezado ni la ventana de casos parecidos */
 .leaflet-container{font:inherit}
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
@@ -254,7 +254,7 @@ footer{text-align:center;font-size:11px;color:var(--t3);padding:6px 0 0}
 <script>
 /* ══════════════ CONFIGURACIÓN (completar al desplegar; ver C-03_GUIA_DE_DESPLIEGUE.md) ══════════════ */
 const CONFIG = {
-  VERSION: 'B2-2.7',
+  VERSION: 'B2-2.8',
   SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwi6BllrgobQjspAHppkSxqTiwubOYMBuJEQJ3Iq6KsomEeRhyfSqvYLtOFPEWRTXY/exec',   // proyecto Apps Script con Problematicas.gs
   FORM_C_URL: 'https://docs.google.com/forms/d/1RGfVaGkzmmUNXLKkWn1Wm2LsNo_8K48yCzBN41Vx6XE/viewform',
   ENTRY: { PROBLEMATICA: '', DESCRIPCION: '', UPZ: '', LINEA_PRINCIPAL: '', EJE: '' },   // entry.N del Agendamiento (Paso 7 de la guía)
