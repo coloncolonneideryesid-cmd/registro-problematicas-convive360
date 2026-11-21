@@ -5,82 +5,145 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Registro de Problemáticas · CONVIVE 360</title>
 <style>
-/* Identidad visual GESEG: #0053bb azul principal · #0d1f3c azul marino · #f5f7fa fondo · #ffffff blanco */
+/* Identidad visual GESEG (sin cambios): #0053bb azul principal · #0d1f3c azul marino · #f5f7fa fondo · #ffffff blanco
+   B2-3.2 (2026-11-20): rediseño visual — tipografía Public Sans, barra de pasos, tarjetas tocables, controles de 48 px. Mismos colores. */
 :root{
-  --azul:#0053bb;--azul-l:#e6eefa;--azul-m:#cddcf3;--navy:#0d1f3c;--fondo:#f5f7fa;--blanco:#ffffff;
+  --azul:#0053bb;--azul-o:#00449a;--azul-l:#e6eefa;--azul-m:#cddcf3;--navy:#0d1f3c;--fondo:#f5f7fa;--blanco:#ffffff;
   --rojo:#c0392b;--rojo-l:#fbeae8;--verde:#1e8e4e;--verde-l:#e7f5ec;--naranja:#c76a12;--naranja-l:#fdf1e6;
-  --t1:#0d1f3c;--t2:#33435c;--t3:#5f6f86;--borde:#d6dde8;--sombra:0 1px 4px rgba(13,31,60,.08);--radio:10px;
+  --t1:#0d1f3c;--t2:#33435c;--t3:#5f6f86;--borde:#d6dde8;--radio:16px;
+  --sombra:0 1px 2px rgba(13,31,60,.06),0 6px 18px rgba(13,31,60,.06);
+  --fuente:'Public Sans',Arial,Helvetica,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Arial,Helvetica,sans-serif;background:var(--fondo);color:var(--t1);font-size:15px;line-height:1.45}
-header{background:var(--navy);color:#fff;position:sticky;top:0;z-index:50;box-shadow:0 2px 10px rgba(0,0,0,.25)}
-header .in{max-width:720px;margin:0 auto;padding:12px 16px}
-header h1{font-size:16px}
-header p{font-size:11.5px;color:#b9c6dc}
-#progreso{height:4px;background:rgba(255,255,255,.15)}#progreso div{height:4px;width:0;background:var(--azul);transition:width .3s}
-#banners{max-width:720px;margin:0 auto;padding:0 12px}
-main{max-width:720px;margin:0 auto;padding:14px 12px 96px}
-.sec{background:var(--blanco);border:1px solid var(--borde);border-radius:var(--radio);box-shadow:var(--sombra);margin-bottom:14px}
-.sec>h2{font-size:14.5px;color:var(--navy);padding:13px 16px;border-bottom:1px solid var(--fondo);display:flex;gap:8px;align-items:center}
-.sec>h2 span.n{background:var(--azul);color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px}
-.sec .cuerpo{padding:14px 16px}
-.campo{margin-bottom:14px}.campo:last-child{margin-bottom:0}
-label.t{display:block;font-weight:700;font-size:13px;color:var(--t2);margin-bottom:5px}
+html{scroll-padding-top:150px}
+body{font-family:var(--fuente);background:var(--fondo);color:var(--t1);font-size:16px;line-height:1.5;-webkit-tap-highlight-color:transparent}
+header{background:var(--navy);color:#fff;position:sticky;top:0;z-index:50;box-shadow:0 6px 20px rgba(13,31,60,.25)}
+header .in{max-width:760px;margin:0 auto;padding:12px 16px 6px;display:flex;align-items:center;gap:12px}
+header .marca{width:42px;height:42px;border-radius:12px;background:var(--azul);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex:none;letter-spacing:-.3px}
+header h1{font-size:16px;font-weight:700;line-height:1.2}
+header p{font-size:12px;color:#b9c6dc}
+#pasos{max-width:760px;margin:0 auto;padding:6px 12px 10px;display:flex;gap:6px}
+#pasos button{flex:1;min-width:0;border:0;background:rgba(255,255,255,.07);color:#c9d6ea;border-radius:10px;padding:6px 2px;font:600 11px/1.15 var(--fuente);display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer}
+#pasos .pn{width:24px;height:24px;border-radius:50%;border:2px solid rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+#pasos .tx{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+#pasos button.actual{background:rgba(255,255,255,.17);color:#fff}
+#pasos button.actual .pn{border-color:#fff}
+#pasos button.listo .pn{background:var(--verde);border-color:var(--verde);color:#fff}
+#pasos button:focus-visible{outline:2px solid #fff;outline-offset:2px}
+@media(max-width:380px){#pasos .tx{display:none}}
+#progreso{height:4px;background:rgba(255,255,255,.12)}#progreso div{height:4px;width:0;background:linear-gradient(90deg,var(--azul),#4a8de0);transition:width .35s}
+#banners{max-width:760px;margin:0 auto;padding:0 12px}
+main{max-width:760px;margin:0 auto;padding:18px 12px 130px}
+.sec{background:var(--blanco);border:1px solid var(--borde);border-radius:var(--radio);box-shadow:var(--sombra);margin-bottom:18px;overflow:hidden}
+.sec>h2{font-size:17px;font-weight:700;color:var(--navy);padding:16px 18px;border-bottom:1px solid #eef2f7;display:flex;gap:12px;align-items:center;background:linear-gradient(180deg,#fff,#fafbfd)}
+.sec>h2 span.n{background:var(--azul);color:#fff;border-radius:12px;width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;font-size:15px;flex:none;transition:background .2s}
+.sec>h2 .estado{margin-left:auto;font-size:12px;font-weight:700;padding:5px 11px;border-radius:20px;background:var(--fondo);color:var(--t3);white-space:nowrap}
+.sec>h2 .estado.ok{background:var(--verde-l);color:var(--verde)}
+.sec.completa>h2 span.n{background:var(--verde)}
+.sec .cuerpo{padding:18px}
+.campo{margin-bottom:22px}.campo:last-child{margin-bottom:0}
+label.t{display:block;font-weight:700;font-size:14.5px;color:var(--t2);margin-bottom:8px}
 .req::after{content:" *";color:var(--rojo)}
-.ayuda{font-size:12px;color:var(--t3);margin-top:4px}
-input[type=text],input[type=date],select,textarea{width:100%;padding:10px 11px;border:1.5px solid var(--borde);border-radius:7px;font:inherit;background:#fff;color:var(--t1)}
-input:focus,select:focus,textarea:focus{outline:none;border-color:var(--azul);box-shadow:0 0 0 3px rgba(0,83,187,.15)}
-textarea{min-height:70px;resize:vertical}
-.dos{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:520px){.dos{grid-template-columns:1fr}}
-.chips{display:flex;flex-wrap:wrap;gap:7px}
-.chip{border:1.5px solid var(--borde);background:var(--fondo);border-radius:18px;padding:7px 12px;font-size:13px;cursor:pointer;user-select:none}
+.ayuda{font-size:13px;color:var(--t3);margin-top:6px}
+input[type=text],input[type=date],select,textarea{width:100%;min-height:50px;padding:12px 14px;border:1.5px solid var(--borde);border-radius:12px;font:inherit;font-size:16px;background:#fff;color:var(--t1);transition:border-color .15s,box-shadow .15s}
+select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' fill='none' stroke='%235f6f86' stroke-width='2'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:42px}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--azul);box-shadow:0 0 0 4px rgba(0,83,187,.14)}
+input[readonly]{background:var(--fondo)}
+textarea{min-height:92px;resize:vertical}
+.dos{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px}.dos:last-child{margin-bottom:0}.dos>.campo{margin-bottom:0}@media(max-width:560px){.dos{grid-template-columns:1fr}}
+.chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+@media(max-width:560px){.chips{grid-template-columns:1fr 1fr}}
+.chip{border:1.5px solid var(--borde);background:#fff;border-radius:12px;padding:10px 12px;font-size:14px;cursor:pointer;user-select:none;line-height:1.25;display:flex;align-items:center;gap:8px;min-height:52px;color:var(--t2);transition:background .12s,border-color .12s,color .12s}
+.chip::before{content:"";flex:none;width:18px;height:18px;border-radius:5px;border:2px solid var(--borde);background:#fff;font-size:12px;line-height:14px;text-align:center}
+.chip:hover{border-color:var(--azul-m)}
 .chip.sel{background:var(--azul);border-color:var(--azul);color:#fff}
-.grupo{font-size:11.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--t3);margin:12px 0 6px}
-.aviso{border-radius:8px;padding:10px 12px;font-size:13px;margin-top:8px}
+.chip.sel::before{content:"✓";font-weight:800;color:var(--azul);border-color:#fff}
+.grupo{font-size:12px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--t3);margin:18px 0 8px}
+.grupo:first-child{margin-top:0}
+.aviso{border-radius:12px;padding:12px 14px;font-size:14px;margin-top:10px;line-height:1.45}
 .aviso.info{background:var(--azul-l);color:var(--navy)}.aviso.alerta{background:var(--naranja-l);color:#7a3f08}.aviso.error{background:var(--rojo-l);color:var(--rojo)}
 .aviso.ok{background:var(--verde-l);color:#14643a}
 .aviso button{margin-left:8px}
 .oculto{display:none!important}
-.sug{border:1px solid var(--borde);border-radius:7px;margin-top:4px;max-height:200px;overflow:auto;background:#fff}
-.sug div{padding:8px 11px;cursor:pointer;border-bottom:1px solid var(--fondo);font-size:14px}.sug div:hover{background:var(--azul-l)}
+.sug{border:1px solid var(--borde);border-radius:12px;margin-top:6px;max-height:220px;overflow:auto;background:#fff;box-shadow:var(--sombra)}
+.sug div{padding:11px 14px;cursor:pointer;border-bottom:1px solid var(--fondo);font-size:15px}.sug div:hover{background:var(--azul-l)}
 .sug small{color:var(--t3)}
-.deriv{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
-.etq{background:var(--azul-l);border:1px solid var(--azul-m);color:var(--navy);border-radius:6px;padding:4px 9px;font-size:12.5px}
-.gps{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end}
-.btn{border:none;border-radius:8px;padding:11px 16px;font:inherit;font-weight:700;cursor:pointer}
-.btn.az{background:var(--azul);color:#fff}.btn.nv{background:var(--navy);color:#fff}.btn.gr{background:var(--fondo);color:var(--t2);border:1px solid var(--borde)}
-.btn.pq{padding:6px 10px;font-size:12.5px}
-.btn:disabled{opacity:.5;cursor:not-allowed}
-.opciones{display:grid;grid-template-columns:1fr 1fr;gap:8px}@media(max-width:520px){.opciones{grid-template-columns:1fr}}
-.opcion{border:1.5px solid var(--borde);border-radius:8px;padding:10px 12px;cursor:pointer;font-size:13.5px}
-.opcion b{display:block;color:var(--navy)}
+.deriv{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.etq{background:var(--azul-l);border:1px solid var(--azul-m);color:var(--navy);border-radius:8px;padding:4px 10px;font-size:12.5px;font-weight:600}
+.gps{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end}
+@media(max-width:440px){.gps{grid-template-columns:1fr 1fr}.gps .btn{grid-column:1/-1}}
+.btn{border:none;border-radius:12px;padding:13px 18px;font:inherit;font-weight:700;cursor:pointer;min-height:48px;transition:transform .08s,background .15s}
+.btn:active{transform:scale(.98)}
+.btn.az{background:var(--azul);color:#fff}.btn.az:hover:not(:disabled){background:var(--azul-o)}
+.btn.nv{background:var(--navy);color:#fff}.btn.gr{background:var(--fondo);color:var(--t2);border:1px solid var(--borde)}
+.btn.pq{padding:7px 12px;font-size:13px;min-height:0}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn:focus-visible,.chip:focus-visible,.opcion:focus-visible,.tarjeta:focus-visible{outline:3px solid rgba(0,83,187,.45);outline-offset:2px}
+.opciones{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:520px){.opciones{grid-template-columns:1fr}}
+.opcion{border:1.5px solid var(--borde);border-radius:12px;padding:14px 16px 14px 52px;cursor:pointer;font-size:14px;position:relative;color:var(--t2);transition:background .12s,border-color .12s}
+.opcion::before{content:"";position:absolute;left:16px;top:16px;width:22px;height:22px;border-radius:50%;border:2px solid var(--borde);background:#fff}
+.opcion b{display:block;color:var(--navy);font-size:15px;margin-bottom:2px}
 .opcion.sel{border-color:var(--azul);background:var(--azul-l)}
-.fotos{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
-.foto{position:relative;width:110px;height:110px;border-radius:8px;overflow:hidden;border:1px solid var(--borde)}
-.foto img{width:100%;height:100%;object-fit:cover}
-.foto button{position:absolute;top:4px;right:4px;background:rgba(13,31,60,.8);color:#fff;border:none;border-radius:50%;width:24px;height:24px;cursor:pointer}
-.enviar{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--borde);padding:10px 12px;z-index:40}
-.enviar .in{max-width:720px;margin:0 auto;display:flex;gap:10px;align-items:center}
-.enviar .btn{flex:1}
-#exito .codigo{font-family:Consolas,monospace;font-size:26px;font-weight:700;color:var(--azul);letter-spacing:1px;margin:8px 0}
-.resumen{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:13.5px;margin-top:8px}
-.resumen dt{color:var(--t3)}.resumen dd{font-weight:700;color:var(--navy)}
-#cargando{text-align:center;padding:40px 10px;color:var(--t3)}
-#modal{position:fixed;inset:0;background:rgba(13,31,60,.55);z-index:80;display:flex;align-items:flex-end;justify-content:center}
-#modal .caja{background:#fff;border-radius:14px 14px 0 0;max-width:720px;width:100%;max-height:85vh;overflow:auto;padding:16px}
-#modal h3{color:var(--navy);font-size:16px;margin-bottom:6px}
-.caso{border:1.5px solid var(--borde);border-radius:8px;padding:10px 12px;margin-top:8px;cursor:pointer;font-size:13.5px}
+.opcion.sel::before{border-color:var(--azul);background:radial-gradient(circle,var(--azul) 0 45%,#fff 50%)}
+/* selects mostrados como tarjetas tocables (el select sigue en la página para el borrador y las pruebas) */
+.oculta-visual{position:absolute!important;width:1px!important;height:1px!important;min-height:0!important;padding:0!important;border:0!important;opacity:0;pointer-events:none;overflow:hidden}
+.tarjetas{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+@media(max-width:560px){.tarjetas{grid-template-columns:1fr 1fr}.tarjetas:not(.escala) .tarjeta:last-child:nth-child(odd){grid-column:1/-1}}
+.tarjeta{border:1.5px solid var(--borde);background:#fff;border-radius:12px;padding:10px 12px;font:600 14px/1.25 var(--fuente);color:var(--t2);cursor:pointer;text-align:left;min-height:52px;display:flex;flex-direction:column;justify-content:center;transition:background .12s,border-color .12s}
+.tarjeta small{display:block;font-weight:400;font-size:12.5px;line-height:1.3;color:var(--t3);margin-top:4px}
+.tarjeta.sel{border-color:var(--azul);background:var(--azul-l);color:var(--navy);box-shadow:inset 0 0 0 1px var(--azul)}
+.tarjetas.escala{grid-template-columns:repeat(5,1fr)}
+.tarjetas.escala .nv{display:block;font-size:22px;font-weight:800;color:var(--azul);line-height:1.1}
+@media(max-width:600px){.tarjetas.escala{grid-template-columns:1fr}.tarjetas.escala .tarjeta{display:grid;grid-template-columns:34px 1fr;column-gap:8px;align-items:center}.tarjetas.escala .nv{grid-row:span 2}}
+/* bloques destacados (observación del entorno, modalidad del hurto, motivo de no denuncia) */
+.bloque{border:1.5px dashed var(--azul-m);background:#fbfcfe;border-radius:14px;padding:16px}
+.bloque>h3{font-size:15px;color:var(--navy);margin-bottom:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.bloque>.ayuda:first-of-type{margin:0 0 14px}
+.defs{margin-top:12px;border-left:4px solid var(--azul);background:var(--azul-l);border-radius:0 12px 12px 0;padding:10px 14px;font-size:13.5px;color:var(--navy)}
+.defs p+p{margin-top:6px}
+.fotos{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px;margin-top:12px}
+.foto{position:relative;aspect-ratio:1/1;border-radius:12px;overflow:hidden;border:1px solid var(--borde)}
+.foto img{width:100%;height:100%;object-fit:cover;display:block}
+.foto button{position:absolute;top:6px;right:6px;background:rgba(13,31,60,.82);color:#fff;border:none;border-radius:50%;width:28px;height:28px;cursor:pointer}
+.enviar{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.97);backdrop-filter:blur(8px);border-top:1px solid var(--borde);padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));z-index:40}
+.enviar .in{max-width:760px;margin:0 auto;display:flex;gap:12px;align-items:center}
+.enviar .faltan{font-size:13px;color:var(--t3);line-height:1.25;max-width:42%}
+.enviar .faltan b{color:var(--navy);display:block;font-size:15px}
+.enviar .btn{flex:1;min-height:52px;font-size:16px}
+#exito .cuerpo{display:flex;flex-direction:column;gap:6px}
+#exito .codigo{font-family:Consolas,'Courier New',monospace;font-size:28px;font-weight:700;color:var(--azul);letter-spacing:1px;margin:6px 0;background:var(--azul-l);border-radius:12px;padding:12px 16px;text-align:center}
+#exito h2{color:var(--verde)}
+.resumen{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:14px;margin-top:8px}
+.resumen dt{color:var(--t3)}.resumen dd{font-weight:700;color:var(--navy);min-width:0;overflow-wrap:anywhere}
+#cargando{text-align:center;padding:48px 10px;color:var(--t3)}
+#cargando::before{content:"";display:block;width:36px;height:36px;margin:0 auto 14px;border-radius:50%;border:4px solid var(--azul-m);border-top-color:var(--azul);animation:gira 1s linear infinite}
+@keyframes gira{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){#cargando::before{animation:none}#progreso div{transition:none}}
+#modal,#revision{position:fixed;inset:0;background:rgba(13,31,60,.55);z-index:80;display:flex;align-items:flex-end;justify-content:center}
+#modal .caja,#revision .caja{background:#fff;border-radius:18px 18px 0 0;max-width:760px;width:100%;max-height:88vh;overflow:auto;padding:20px 18px calc(20px + env(safe-area-inset-bottom,0px))}
+#modal h3,#revision h3{color:var(--navy);font-size:18px;margin-bottom:6px}
+#revision .acciones,#modal .acciones{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+#revision .acciones .btn{flex:1}
+.caso{border:1.5px solid var(--borde);border-radius:12px;padding:12px 14px;margin-top:10px;cursor:pointer;font-size:14px}
 .caso.sel{border-color:var(--azul);background:var(--azul-l)}
-footer{text-align:center;font-size:11px;color:var(--t3);padding:6px 0 0}
-#mapa{height:320px;border-radius:8px;margin-top:8px;border:1px solid var(--borde);position:relative;z-index:0}   /* z-index 0: el mapa no tapa el encabezado ni la ventana de casos parecidos */
+footer{text-align:center;font-size:12px;color:var(--t3);padding:8px 0 0;line-height:1.8}
+#mapa{height:300px;border-radius:12px;margin-top:8px;border:1px solid var(--borde);position:relative;z-index:0}   /* z-index 0: el mapa no tapa el encabezado ni las ventanas */
 .leaflet-container{font:inherit}
 </style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&display=swap">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" defer></script>
 </head>
 <body>
 <header>
-  <div class="in"><h1>Registro de Problemáticas del Territorio</h1><p>CONVIVE 360° · Alcaldía Local de San Cristóbal · Localidad 4</p></div>
+  <div class="in"><div class="marca" aria-hidden="true">360°</div><div><h1>Registro de Problemáticas del Territorio</h1><p>CONVIVE 360° · Alcaldía Local de San Cristóbal · Localidad 4</p></div></div>
+  <nav id="pasos" aria-label="Pasos del formulario">
+    <button type="button" data-s="s1"><span class="pn">1</span><span class="tx">Datos</span></button>
+    <button type="button" data-s="s2"><span class="pn">2</span><span class="tx">Territorio</span></button>
+    <button type="button" data-s="s3"><span class="pn">3</span><span class="tx">Problema</span></button>
+    <button type="button" data-s="s4"><span class="pn">4</span><span class="tx">Trasfondo</span></button>
+    <button type="button" data-s="s5"><span class="pn">5</span><span class="tx">Evidencia</span></button>
+  </nav>
   <div id="progreso"><div></div></div>
 </header>
 <div id="banners">
@@ -94,7 +157,7 @@ footer{text-align:center;font-size:11px;color:var(--t3);padding:6px 0 0}
 
   <form id="f" class="oculto" onsubmit="return false" autocomplete="off">
     <!-- 1 · IDENTIFICACIÓN -->
-    <section class="sec"><h2><span class="n">1</span>Identificación</h2><div class="cuerpo">
+    <section class="sec" id="s1"><h2><span class="n">1</span>Identificación<span class="estado" id="est1"></span></h2><div class="cuerpo">
       <div class="dos">
         <div class="campo"><label class="t req" for="area">Área</label>
           <select id="area"><option value="">Seleccione…</option>
@@ -124,7 +187,7 @@ footer{text-align:center;font-size:11px;color:var(--t3);padding:6px 0 0}
     </div></section>
 
     <!-- 2 · TERRITORIO -->
-    <section class="sec"><h2><span class="n">2</span>Territorio</h2><div class="cuerpo">
+    <section class="sec" id="s2"><h2><span class="n">2</span>Territorio<span class="estado" id="est2"></span></h2><div class="cuerpo">
       <div class="campo"><label class="t">Mapa: ¿dónde estoy?</label>
         <div id="mapaNota" class="aviso oculto"></div>
         <div id="mapa"></div>
@@ -145,7 +208,7 @@ footer{text-align:center;font-size:11px;color:var(--t3);padding:6px 0 0}
           <option>Vía pública / calle</option><option>Parque o zona verde</option><option>Entorno escolar</option>
           <option>Paradero SITP / estación</option><option>Establecimiento comercial</option><option>Establecimiento de licor</option>
           <option>Salón comunal / JAC</option><option>Conjunto residencial (PH)</option><option>Lote o predio abandonado</option>
-          <option>Quebrada, cerro o zona rural</option><option>Otro</option></select>
+          <option>Quebrada, cerro o zona rural</option><option>Puente peatonal</option><option>Cajero automático</option><option>Plaza de mercado</option><option>Otro</option></select>
         <input type="text" id="lugarOtro" class="oculto pii" maxlength="80" placeholder="¿Cuál lugar? (sin direcciones de vivienda)" style="margin-top:6px"></div>
       <div class="campo"><label class="t req">Ubicación GPS</label>
         <div class="gps"><input type="text" id="lat" placeholder="Latitud" readonly><input type="text" id="lon" placeholder="Longitud" readonly>
@@ -157,12 +220,32 @@ footer{text-align:center;font-size:11px;color:var(--t3);padding:6px 0 0}
             <option>Registro desde oficina (sin ubicación del punto)</option><option>Otro</option></select>
           <input type="text" id="motivoOtro" class="oculto pii" maxlength="120" placeholder="Escriba el motivo" style="margin-top:6px"></div>
         <button type="button" class="btn gr" id="btnSinGps" style="margin-top:8px">No es posible capturar el GPS</button></div>
+      <div id="cptedBox" class="campo bloque oculto">
+        <h3>Observación del entorno <span class="etq">solo en terreno · recomendado</span></h3>
+        <p class="ayuda">Lo que usted ve en el punto, según la prevención del delito mediante el diseño ambiental (CPTED). No es obligatorio, pero mejora el análisis.</p>
+        <div class="campo"><label class="t" for="cptIlum">Iluminación del punto</label>
+          <select id="cptIlum"><option value="">—</option><option>Adecuada</option><option>Deficiente</option><option>Sin iluminación</option><option>No se pudo observar</option></select></div>
+        <div class="campo"><label class="t">Barreras a la visibilidad</label><div class="chips" data-g="cpt_vis">
+          <span class="chip">Muros altos o culatas</span><span class="chip">Vegetación densa</span><span class="chip">Rincones o puntos ciegos</span><span class="chip">Ninguna</span></div></div>
+        <div class="campo"><label class="t">Estado del entorno</label><div class="chips" data-g="cpt_ent">
+          <span class="chip">Lotes baldíos</span><span class="chip">Edificaciones abandonadas</span><span class="chip">Basuras o escombros</span><span class="chip">Grafitis</span><span class="chip">Mobiliario urbano dañado</span><span class="chip">En buen estado</span></div></div>
+        <div class="campo"><label class="t" for="cptFlujo">Flujo de personas</label>
+          <select id="cptFlujo"><option value="">—</option><option>Alto</option><option>Medio</option><option>Bajo</option><option>Casi nadie</option></select></div>
+        <div class="campo"><label class="t" for="cptUso">Uso comunitario del espacio</label>
+          <select id="cptUso"><option value="">—</option><option>Activo</option><option>Ocasional</option><option>Abandonado</option><option>No aplica</option></select></div>
+        <div class="campo"><label class="t">Elementos de seguridad presentes</label><div class="chips" data-g="cpt_seg">
+          <span class="chip">Cámaras</span><span class="chip">Alarma comunitaria</span><span class="chip">Frente de seguridad</span><span class="chip">CAI o presencia policial</span><span class="chip">Ninguno</span></div></div>
+      </div>
     </div></section>
 
     <!-- 3 · PROBLEMÁTICA -->
-    <section class="sec"><h2><span class="n">3</span>Problemática</h2><div class="cuerpo">
+    <section class="sec" id="s3"><h2><span class="n">3</span>Problemática<span class="estado" id="est3"></span></h2><div class="cuerpo">
       <div class="campo"><label class="t req">¿Qué problemáticas se presentan en el punto?</label><div id="chipsProb"></div>
-        <div id="avisoTipo" class="aviso alerta oculto">Para pandillas y grupos al margen de la ley se registra <b>solo el tipo</b>: no escriba nombres, alias, apodos ni lugares de residencia de personas.</div></div>
+        <div id="avisoTipo" class="aviso alerta oculto">Para pandillas y grupos al margen de la ley se registra <b>solo el tipo</b>: no escriba nombres, alias, apodos ni lugares de residencia de personas.</div>
+        <div id="defsProb" class="defs oculto" aria-live="polite"></div></div>
+      <div id="hurtoBox" class="campo bloque oculto"><label class="t req">Modalidad del hurto</label>
+        <div class="chips" data-g="hurto"><span class="chip">A personas</span><span class="chip">Celulares</span><span class="chip">Residencias</span><span class="chip">Comercio</span><span class="chip">Vehículos o motos</span><span class="chip">Bicicletas</span></div>
+        <div class="ayuda">Categorías de la Encuesta de Convivencia y Seguridad Ciudadana (DANE). Puede marcar varias.</div></div>
       <div class="campo"><label class="t req" for="principal">Problemática principal</label>
         <select id="principal"><option value="">Marque primero las problemáticas…</option></select>
         <div id="lineaSug" class="ayuda"></div></div>
@@ -183,7 +266,7 @@ footer{text-align:center;font-size:11px;color:var(--t3);padding:6px 0 0}
     </div></section>
 
     <!-- 4 · TRASFONDO -->
-    <section class="sec"><h2><span class="n">4</span>Trasfondo</h2><div class="cuerpo">
+    <section class="sec" id="s4"><h2><span class="n">4</span>Trasfondo<span class="estado" id="est4"></span></h2><div class="cuerpo">
       <div class="dos">
         <div class="campo"><label class="t req" for="antiguedad">¿Desde cuándo ocurre?</label><select id="antiguedad"><option value="">Seleccione…</option>
           <option>Menos de 1 mes</option><option>1 a 6 meses</option><option>6 a 12 meses</option><option>1 a 2 años</option><option>Estructural (más de 2 años)</option></select></div>
@@ -194,19 +277,23 @@ footer{text-align:center;font-size:11px;color:var(--t3);padding:6px 0 0}
       <div class="campo"><label class="t">Factores protectores presentes</label><div class="chips" id="chipsFP"></div></div>
       <div class="campo"><label class="t">¿Quiénes la generan? (solo el tipo)</label><div class="chips" data-g="actores">
         <span class="chip">Personas externas al barrio</span><span class="chip">Habitantes del sector</span><span class="chip">Grupos de jóvenes</span>
-        <span class="chip">Estructuras delincuenciales</span><span class="chip">Establecimientos</span><span class="chip">No identificados</span></div></div>
+        <span class="chip">Estructuras delincuenciales</span><span class="chip">Expendedores de droga</span><span class="chip">Barras futboleras</span><span class="chip">Establecimientos</span><span class="chip">No identificados</span></div></div>
       <div class="dos">
         <div class="campo"><label class="t req" for="denuncia">¿Se ha reportado o denunciado?</label><select id="denuncia"><option value="">Seleccione…</option>
           <option>Sí, a la Policía / NUSE 123</option><option>Sí, a la Alcaldía</option><option>Sí, a la Personería</option><option>No se ha reportado</option><option>No sabe</option></select></div>
         <div class="campo"><label class="t" for="respuesta">Respuesta institucional previa</label><select id="respuesta"><option value="">—</option>
           <option>Ninguna</option><option>Esporádica</option><option>Permanente</option><option>No sabe</option></select></div>
       </div>
+      <div id="noDenunciaBox" class="campo bloque oculto"><label class="t req" for="motivoNoDen">¿Por qué no se ha denunciado? (según la comunidad)</label>
+        <select id="motivoNoDen"><option value="">Seleccione…</option><option>Desconfianza en las autoridades</option><option>Miedo a represalias</option>
+          <option>Trámites largos o difíciles</option><option>No saben dónde o cómo denunciar</option><option>Consideran que no es grave</option><option>Otro</option></select>
+        <div class="ayuda">Ayuda a medir los hechos que no llegan a las autoridades.</div></div>
       <div class="campo"><label class="t" for="solucion">Solución que propone la comunidad</label>
         <textarea id="solucion" maxlength="300" class="pii" placeholder="Sin nombres, teléfonos ni direcciones de personas"></textarea></div>
     </div></section>
 
     <!-- 5 · EVIDENCIA Y CIERRE -->
-    <section class="sec"><h2><span class="n">5</span>Evidencia y cierre</h2><div class="cuerpo">
+    <section class="sec" id="s5"><h2><span class="n">5</span>Evidencia y cierre<span class="estado" id="est5"></span></h2><div class="cuerpo">
       <div class="campo"><label class="t req">Fotos del punto (1 a 10)</label>
         <input type="file" id="fotoInput" accept="image/*" capture="environment" class="oculto">
         <button type="button" class="btn az" id="btnFoto">📷 Tomar o adjuntar foto</button>
@@ -265,26 +352,35 @@ footer{text-align:center;font-size:11px;color:var(--t3);padding:6px 0 0}
   <h3>Ya existe un caso parecido</h3>
   <div class="ayuda">Misma problemática en el mismo sitio. Si es el mismo, su reporte se suma al caso y no se duplica.</div>
   <div id="modalCasos"></div>
-  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
+  <div class="acciones">
     <button type="button" class="btn az" id="btnEsMismo" disabled>Es el mismo: sumar mi reporte</button>
     <button type="button" class="btn nv" id="btnEsOtro">Es un caso distinto</button>
     <button type="button" class="btn gr" id="btnCancelarModal">Volver al formulario</button>
   </div>
 </div></div>
 
+<div id="revision" class="oculto" role="dialog" aria-modal="true" aria-labelledby="revTitulo"><div class="caja">
+  <h3 id="revTitulo">Revise antes de registrar</h3>
+  <div class="ayuda">Confirme que los datos describen el punto. Si algo no está bien, toque «Corregir».</div>
+  <dl class="resumen" id="revResumen"></dl>
+  <div class="acciones"><button type="button" class="btn az" id="btnConfirmarEnvio">Confirmar y registrar</button><button type="button" class="btn gr" id="btnCorregir">Corregir</button></div>
+</div></div>
+
 <div class="enviar" id="barraEnviar"><div class="in">
+  <span class="faltan" id="faltanTxt" aria-live="polite"></span>
   <button type="button" class="btn az" id="btnEnviar" disabled>Registrar problemática</button>
 </div></div>
 
 <script>
 /* ══════════════ CONFIGURACIÓN (completar al desplegar; ver C-03_GUIA_DE_DESPLIEGUE.md) ══════════════ */
 const CONFIG = {
-  VERSION: 'B2-3.1',
+  VERSION: 'B2-3.2',
   SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwi6BllrgobQjspAHppkSxqTiwubOYMBuJEQJ3Iq6KsomEeRhyfSqvYLtOFPEWRTXY/exec',   // proyecto Apps Script con Problematicas.gs
   FORM_C_URL: 'https://docs.google.com/forms/d/1RGfVaGkzmmUNXLKkWn1Wm2LsNo_8K48yCzBN41Vx6XE/viewform',
   ENTRY: { PROBLEMATICA: '', DESCRIPCION: '', UPZ: '', LINEA_PRINCIPAL: '', EJE: '' },   // entry.N del Agendamiento (Paso 7 de la guía)
   UPZ_TEXTO_EN_C: { '32': '32 - San Blas', '33': '33 - Sosiego', '34': '34 - 20 de Julio', '50': '50 - La Gloria', '51': '51 - Los Libertadores' },
   BBOX: { latMin: 4.495, latMax: 4.620, lonMin: -74.130, lonMax: -74.015 },   // respaldo si el mapa no carga
+  REVISION_ANTES_DE_ENVIAR: true,   // ventana «Revise antes de registrar» (las pruebas automáticas la apagan)
   CACHE_HORAS: 24, FOTO_LADO_MAX: 1024, FOTO_CALIDAD: 0.6, FOTOS_MAX: 10, REINTENTO_COLA_MS: 60000
 };
 
@@ -298,7 +394,9 @@ const leer = k => { try { return JSON.parse(localStorage.getItem(k) || 'null'); 
 const guardar = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } };
 const borrar = k => { try { localStorage.removeItem(k); } catch (e) {} };
 const nuevoId = () => (window.crypto && crypto.randomUUID ? crypto.randomUUID() : 'id-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10));
-const sel = { prob: new Set(), franja: new Set(), poblacion: new Set(), fr: new Set(), fp: new Set(), actores: new Set(), acomp: new Set() };
+const sel = { prob: new Set(), franja: new Set(), poblacion: new Set(), fr: new Set(), fp: new Set(), actores: new Set(), acomp: new Set(),
+              hurto: new Set(), cpt_vis: new Set(), cpt_ent: new Set(), cpt_seg: new Set() };
+const esc = s => String(s === null || s === undefined ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 let GEO = null, barrioMapa = '', CAT = null, FUN = [], barrioElegido = null, verificacion = '', fotos = [], tInicio = null, idEnvio = nuevoId(), restaurando = false;
 
 async function api(params) {
@@ -353,6 +451,9 @@ function opciones(id, lista, valor, texto, ph) {
 
 function pintar() {
   $('fecha').max = hoyISO();
+  comoTarjetas('frecuencia'); comoTarjetas('afectados'); comoTarjetas('antiguedad');
+  comoTarjetas('afectacion', { escala: true, desc: DESC_AFECTACION });
+  comoTarjetas('cptIlum', { desmarcable: true }); comoTarjetas('cptFlujo', { desmarcable: true }); comoTarjetas('cptUso', { desmarcable: true });
   const cont = $('chipsProb'); cont.innerHTML = '';
   const grupos = {};
   CAT.PROBLEMATICAS.forEach(p => { (grupos[p.CATEGORIA] = grupos[p.CATEGORIA] || []).push(p); });
@@ -375,12 +476,14 @@ function chip(texto, valor, grupo, titulo) {
 function activarChip(el, grupo, valor) {
   el.dataset.v = valor; el.dataset.grupo = grupo;
   el.onclick = () => {
-    if (sel[grupo].has(valor)) sel[grupo].delete(valor); else sel[grupo].add(valor);
-    el.classList.toggle('sel', sel[grupo].has(valor));
+    if (sel[grupo].has(valor)) sel[grupo].delete(valor);
+    else { if (EXCLUSIVOS.indexOf(valor) >= 0) sel[grupo].clear(); else EXCLUSIVOS.forEach(x => sel[grupo].delete(x)); sel[grupo].add(valor); }
+    if (grupo.indexOf('cpt_') === 0) marcarChips(); else el.classList.toggle('sel', sel[grupo].has(valor));
     if (grupo === 'prob') actualizarPrincipal();
     cambio();
   };
 }
+const EXCLUSIVOS = ['Ninguna', 'Ninguno', 'En buen estado'];   // en la observación del entorno, excluyen a las demás
 function marcarChips() { document.querySelectorAll('.chip').forEach(c => c.classList.toggle('sel', sel[c.dataset.grupo].has(c.dataset.v))); }
 function elegirVerificacion(v) {
   verificacion = v;
@@ -420,6 +523,9 @@ function actualizarPrincipal() {
   if (lista.some(p => p.COD_PROBLEMATICA === actual)) $('principal').value = actual;
   else if (lista.length === 1) $('principal').value = lista[0].COD_PROBLEMATICA;
   $('avisoTipo').classList.toggle('oculto', !(sel.prob.has('SEG-03') || sel.prob.has('SEG-04')));
+  // B2-3.2: la definición operativa se ve en el celular (antes solo al pasar el puntero en computador)
+  $('defsProb').innerHTML = lista.map(p => '<p><b>' + esc(p.SUBTIPO) + ':</b> ' + esc(p.DEFINICION_OPERATIVA || '') + '</p>').join('');
+  $('defsProb').classList.toggle('oculto', !lista.length);
   mostrarLinea();
 }
 function mostrarLinea() {
@@ -690,6 +796,8 @@ function validar() {
   if (!sel.prob.size) e.push('Marque al menos una problemática');
   if (!sel.franja.size) e.push('Marque la franja horaria');
   if (!sel.poblacion.size) e.push('Marque la población afectada');
+  if (sel.prob.has('SEG-01') && !sel.hurto.size) e.push('Indique la modalidad del hurto');
+  if ($('denuncia').value === 'No se ha reportado' && !$('motivoNoDen').value) e.push('Indique por qué no se ha denunciado');
   if (!fotos.length) e.push('Adjunte al menos una foto del punto');
   if ([...document.querySelectorAll('.pii')].some(el => tienePii(el.value))) e.push('Quite teléfonos, correos o documentos de los textos');
   if (!$('sinPii').checked) e.push('Confirme que no registró datos personales');
@@ -706,9 +814,78 @@ function avisosSuaves() {
   $('avisosSuaves').innerHTML = a.map(x => '⚠ ' + x).join('<br>');
   $('avisosSuaves').classList.toggle('oculto', !a.length);
 }
+function bloquesCondicionales() {
+  $('cptedBox').classList.toggle('oculto', verificacion !== 'TERRENO');
+  const hurto = sel.prob.has('SEG-01');
+  $('hurtoBox').classList.toggle('oculto', !hurto);
+  if (!hurto && sel.hurto.size) { sel.hurto.clear(); marcarChips(); }
+  const noDen = $('denuncia').value === 'No se ha reportado';
+  $('noDenunciaBox').classList.toggle('oculto', !noDen);
+  if (!noDen && $('motivoNoDen').value) $('motivoNoDen').value = '';
+}
+/** Pendientes por sección (para la barra de pasos y el estado de cada bloque). */
+function faltanSeccion() {
+  const v = id => !!$(id).value;
+  const gpsOk = $('lat').value !== '' ? gpsDentro()
+    : (verificacion !== 'TERRENO' && v('motivo') && ($('motivo').value !== 'Otro' || !!$('motivoOtro').value.trim()));
+  const barrioOk = esOtro() ? $('barrio').value.trim().length >= 3 : !!(barrioElegido && barrioElegido.ZONA);
+  return [
+    [v('area'), v('funcionario'), !!verificacion, v('fecha'), v('fuente')],
+    [v('upz'), barrioOk, v('lugar') && ($('lugar').value !== 'Otro' || !!$('lugarOtro').value.trim()), gpsOk],
+    [sel.prob.size > 0, v('principal'), !sel.prob.has('SEG-01') || sel.hurto.size > 0, v('frecuencia'), v('afectados'), sel.franja.size > 0, sel.poblacion.size > 0],
+    [v('antiguedad'), v('afectacion'), v('denuncia'), $('denuncia').value !== 'No se ha reportado' || v('motivoNoDen')],
+    [fotos.length > 0, $('sinPii').checked, ![...document.querySelectorAll('.pii')].some(el => tienePii(el.value))]
+  ].map(a => ({ total: a.length, faltan: a.filter(x => !x).length }));
+}
+function estadoSecciones() {
+  const fs = faltanSeccion();
+  fs.forEach((s, i) => {
+    const est = $('est' + (i + 1)), sec = $('s' + (i + 1)), paso = document.querySelector('#pasos button[data-s="s' + (i + 1) + '"]');
+    const ok = s.faltan === 0;
+    est.textContent = ok ? 'Completo ✓' : 'Faltan ' + s.faltan;
+    est.classList.toggle('ok', ok); sec.classList.toggle('completa', ok);
+    paso.classList.toggle('listo', ok); paso.querySelector('.pn').textContent = ok ? '✓' : String(i + 1);
+    paso.setAttribute('aria-label', 'Paso ' + (i + 1) + ': ' + ['Identificación', 'Territorio', 'Problemática', 'Trasfondo', 'Evidencia y cierre'][i] + (ok ? ', completo' : ', faltan ' + s.faltan));
+  });
+  return fs;
+}
+function pasoActual() {
+  let actual = 's1';
+  ['s1', 's2', 's3', 's4', 's5'].forEach(id => { if ($(id).getBoundingClientRect().top < 190) actual = id; });
+  document.querySelectorAll('#pasos button').forEach(b => b.classList.toggle('actual', b.dataset.s === actual));
+}
+/* selects mostrados como tarjetas tocables: el <select> sigue existiendo (borrador, pruebas, envío) y se sincroniza */
+const DESC_AFECTACION = { '1': 'Molestia puntual; no cambia el uso del espacio', '2': 'Incomodidad localizada; la comunidad la tolera',
+  '3': 'Altera rutinas; algunas personas evitan el lugar', '4': 'Daño o temor extendido; afecta a grupos vulnerables', '5': 'Riesgo para la vida o la integridad' };
+function comoTarjetas(id, opc) {
+  const s = $(id); opc = opc || {};
+  if (document.querySelector('.tarjetas[data-para="' + id + '"]')) return;
+  s.classList.add('oculta-visual'); s.tabIndex = -1; s.setAttribute('aria-hidden', 'true');
+  const w = document.createElement('div'); w.className = 'tarjetas' + (opc.escala ? ' escala' : ''); w.dataset.para = id; w.setAttribute('role', 'radiogroup');
+  const etq = document.querySelector('label[for="' + id + '"]'); if (etq) { etq.id = etq.id || 'etq-' + id; w.setAttribute('aria-labelledby', etq.id); }
+  [...s.options].filter(o => o.value).forEach(o => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'tarjeta'; b.dataset.v = o.value; b.setAttribute('role', 'radio');
+    const texto = opc.escala ? o.textContent.replace(/^\d\s*·\s*/, '') : o.textContent;
+    b.innerHTML = (opc.escala ? '<span class="nv">' + esc(o.value) + '</span>' : '') + '<span>' + esc(texto) + '</span>' + (opc.desc && opc.desc[o.value] ? '<small>' + esc(opc.desc[o.value]) + '</small>' : '');
+    b.onclick = () => { s.value = (opc.desmarcable && s.value === o.value) ? '' : o.value; s.dispatchEvent(new Event('change', { bubbles: true })); };
+    w.appendChild(b);
+  });
+  s.insertAdjacentElement('afterend', w);
+  s.addEventListener('change', () => sincTarjetas(id));
+}
+function sincTarjetas(id) {
+  const w = document.querySelector('.tarjetas[data-para="' + id + '"]'); if (!w) return;
+  w.querySelectorAll('.tarjeta').forEach(b => { const on = b.dataset.v === $(id).value; b.classList.toggle('sel', on); b.setAttribute('aria-checked', String(on)); });
+}
+function sincTodas() { document.querySelectorAll('.tarjetas').forEach(w => sincTarjetas(w.dataset.para)); }
 function progreso() {
-  const total = 21, faltan = validar().length;
-  document.querySelector('#progreso div').style.width = Math.max(0, Math.round((total - Math.min(total, faltan)) / total * 100)) + '%';
+  bloquesCondicionales();
+  const fs = estadoSecciones();
+  const total = fs.reduce((a, s) => a + s.total, 0), pend = fs.reduce((a, s) => a + s.faltan, 0);
+  const faltan = validar().length;
+  document.querySelector('#progreso div').style.width = Math.round((total - pend) / total * 100) + '%';
+  $('faltanTxt').innerHTML = faltan ? '<b>' + faltan + ' pendiente' + (faltan === 1 ? '' : 's') + '</b>toque un paso para ir' : '<b>Todo listo</b>revise y registre';
+  sincTodas();
   $('btnEnviar').disabled = faltan > 0;
   $('piiAviso').classList.toggle('oculto', ![...document.querySelectorAll('.pii')].some(el => tienePii(el.value)));
   avisosSuaves();
@@ -721,7 +898,7 @@ function cambio() {
 
 /* ══════════════ BORRADOR EN EL TELÉFONO ══════════════ */
 const CAMPOS = ['area', 'funcionario', 'fecha', 'fuente', 'upz', 'lugar', 'lugarOtro', 'lat', 'lon', 'motivo', 'motivoOtro', 'principal', 'frecuencia', 'afectados',
-                'antiguedad', 'afectacion', 'denuncia', 'respuesta', 'solucion', 'obs'];
+                'antiguedad', 'afectacion', 'denuncia', 'respuesta', 'solucion', 'obs', 'motivoNoDen', 'cptIlum', 'cptFlujo', 'cptUso'];
 let tBorrador = null;
 function guardarBorrador() {
   if (restaurando) return;
@@ -769,8 +946,39 @@ function payload(extra) {
     antiguedad: $('antiguedad').value, factores_riesgo: [...sel.fr], factores_protectores: [...sel.fp], actores: [...sel.actores],
     nivel_afectacion: $('afectacion').value, denuncia: $('denuncia').value, respuesta_previa: $('respuesta').value,
     solucion: $('solucion').value.trim(), observaciones: $('obs').value.trim(), fotos: fotos.slice(),
-    confirmacion_sin_pii: $('sinPii').checked, segundos_diligenciamiento: tInicio ? Math.round((Date.now() - tInicio) / 1000) : ''
+    confirmacion_sin_pii: $('sinPii').checked, segundos_diligenciamiento: tInicio ? Math.round((Date.now() - tInicio) / 1000) : '',
+    // B2-3.2: modalidad del hurto (ECSC-DANE), motivo de no denuncia y observación del entorno (CPTED, solo en terreno)
+    modalidad_hurto: [...sel.hurto], motivo_no_denuncia: $('denuncia').value === 'No se ha reportado' ? $('motivoNoDen').value : '',
+    cpted: verificacion === 'TERRENO' ? { iluminacion: $('cptIlum').value, visibilidad: [...sel.cpt_vis], entorno: [...sel.cpt_ent],
+                                          flujo: $('cptFlujo').value, uso: $('cptUso').value, seguridad: [...sel.cpt_seg] } : null
   }, extra || {});
+}
+/** B2-3.2: «Revise antes de registrar» — resumen de lo esencial antes de enviar (si hay pendientes, los muestra). */
+function abrirRevision() {
+  const e = validar();
+  if (e.length) { mostrar('errores', 'Revise: ' + e.join(' · '), 'error'); $('errores').scrollIntoView({ block: 'center' }); return; }
+  if (CONFIG.REVISION_ANTES_DE_ENVIAR === false) { enviar(); return; }
+  const prob = CAT.PROBLEMATICAS.find(p => p.COD_PROBLEMATICA === $('principal').value) || {};
+  const fun = FUN.find(f => f.ID_FUNCIONARIO === $('funcionario').value) || {};
+  const otras = CAT.PROBLEMATICAS.filter(p => sel.prob.has(p.COD_PROBLEMATICA) && p.COD_PROBLEMATICA !== $('principal').value).map(p => p.SUBTIPO);
+  const barrio = esOtro() ? $('barrio').value.trim() + ' (pendiente de código)' : (barrioElegido ? barrioElegido.NOMBRE_VISIBLE + ' · ' + barrioElegido.COD_BARRIO : '');
+  const filas = [
+    ['Registra', (fun.NOMBRE_VISIBLE || '') + ' · ' + $('area').value],
+    ['Levantamiento', verificacion === 'TERRENO' ? 'Verificación en terreno' : 'Reporte desde oficina'],
+    ['Fecha del hecho', $('fecha').value],
+    ['Barrio', barrio + ' · UPZ ' + (barrioElegido ? barrioElegido.UPZ : $('upz').value)],
+    ['Ubicación', $('lat').value ? 'GPS capturado dentro de la localidad' : 'Sin GPS: ' + $('motivo').value],
+    ['Problemática principal', prob.SUBTIPO || ''],
+    ['Otras problemáticas', otras.join(', ')],
+    ['Modalidad del hurto', [...sel.hurto].join(', ')],
+    ['Frecuencia', $('frecuencia').value], ['Personas afectadas', $('afectados').value],
+    ['Nivel de afectación', $('afectacion').value ? $('afectacion').value + ' de 5' : ''],
+    ['Denuncia', $('denuncia').value + ($('motivoNoDen').value ? ' · ' + $('motivoNoDen').value : '')],
+    ['Fotos', String(fotos.length)]
+  ];
+  $('revResumen').innerHTML = filas.filter(f => f[1]).map(f => '<dt>' + esc(f[0]) + '</dt><dd>' + esc(f[1]) + '</dd>').join('');
+  $('revision').classList.remove('oculto');
+  $('btnConfirmarEnvio').focus();
 }
 async function enviar() {
   const e = validar();
@@ -979,7 +1187,12 @@ document.addEventListener('DOMContentLoaded', () => {
   $('fotoInput').addEventListener('change', e => { agregarFoto(e.target.files[0]); e.target.value = ''; });
   document.querySelectorAll('select, input, textarea').forEach(el => el.addEventListener('change', cambio));
   document.querySelectorAll('textarea, input[type=text]').forEach(el => el.addEventListener('input', cambio));
-  $('btnEnviar').addEventListener('click', enviar);
+  $('btnEnviar').addEventListener('click', abrirRevision);
+  $('btnConfirmarEnvio').addEventListener('click', () => { $('revision').classList.add('oculto'); enviar(); });
+  $('btnCorregir').addEventListener('click', () => $('revision').classList.add('oculto'));
+  ['motivoNoDen', 'cptIlum', 'cptFlujo', 'cptUso'].forEach(id => $(id).addEventListener('change', cambio));
+  document.querySelectorAll('#pasos button').forEach(b => b.addEventListener('click', () => $(b.dataset.s).scrollIntoView({ behavior: 'smooth', block: 'start' })));
+  window.addEventListener('scroll', pasoActual, { passive: true });
   $('btnOtra').addEventListener('click', () => nuevo(false));
   $('lnkDescartar').addEventListener('click', ev => { ev.preventDefault(); abrirDescarte(); });
   $('btnVolverDesc').addEventListener('click', cerrarDescarte);
