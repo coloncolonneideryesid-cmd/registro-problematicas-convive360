@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agendamiento de Actividades · CONVIVE 360</title>
+<style>
+/* Identidad visual GESEG (sin cambios): #0053bb azul principal · #0d1f3c azul marino · #f5f7fa fondo · #ffffff blanco
+   B2-3.2 (2026-11-20): rediseño visual — tipografía Public Sans, barra de pasos, tarjetas tocables, controles de 48 px. Mismos colores. */
+:root{
+  --azul:#0053bb;--azul-o:#00449a;--azul-l:#e6eefa;--azul-m:#cddcf3;--navy:#0d1f3c;--fondo:#f5f7fa;--blanco:#ffffff;
+  --rojo:#c0392b;--rojo-l:#fbeae8;--verde:#1e8e4e;--verde-l:#e7f5ec;--naranja:#c76a12;--naranja-l:#fdf1e6;
+  --t1:#0d1f3c;--t2:#33435c;--t3:#5f6f86;--borde:#d6dde8;--radio:16px;
+  --sombra:0 1px 2px rgba(13,31,60,.06),0 6px 18px rgba(13,31,60,.06);
+  --fuente:'Public Sans',Arial,Helvetica,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-padding-top:150px}
+body{font-family:var(--fuente);background:var(--fondo);color:var(--t1);font-size:16px;line-height:1.5;-webkit-tap-highlight-color:transparent}
+header{background:var(--navy);color:#fff;position:sticky;top:0;z-index:50;box-shadow:0 6px 20px rgba(13,31,60,.25)}
+header .in{max-width:760px;margin:0 auto;padding:12px 16px 6px;display:flex;align-items:center;gap:12px}
+header .marca{width:42px;height:42px;border-radius:12px;background:var(--azul);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex:none;letter-spacing:-.3px}
+header h1{font-size:16px;font-weight:700;line-height:1.2}
+header p{font-size:12px;color:#b9c6dc}
+#pasos{max-width:760px;margin:0 auto;padding:6px 12px 10px;display:flex;gap:6px}
+#pasos button{flex:1;min-width:0;border:0;background:rgba(255,255,255,.07);color:#c9d6ea;border-radius:10px;padding:6px 2px;font:600 11px/1.15 var(--fuente);display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer}
+#pasos .pn{width:24px;height:24px;border-radius:50%;border:2px solid rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+#pasos .tx{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+#pasos button.actual{background:rgba(255,255,255,.17);color:#fff}
+#pasos button.actual .pn{border-color:#fff}
+#pasos button.listo .pn{background:var(--verde);border-color:var(--verde);color:#fff}
+#pasos button:focus-visible{outline:2px solid #fff;outline-offset:2px}
+@media(max-width:380px){#pasos .tx{display:none}}
+#progreso{height:4px;background:rgba(255,255,255,.12)}#progreso div{height:4px;width:0;background:linear-gradient(90deg,var(--azul),#4a8de0);transition:width .35s}
+#banners{max-width:760px;margin:0 auto;padding:0 12px}
+main{max-width:760px;margin:0 auto;padding:18px 12px 130px}
+.sec{background:var(--blanco);border:1px solid var(--borde);border-radius:var(--radio);box-shadow:var(--sombra);margin-bottom:18px;overflow:hidden}
+.sec>h2{font-size:17px;font-weight:700;color:var(--navy);padding:16px 18px;border-bottom:1px solid #eef2f7;display:flex;gap:12px;align-items:center;background:linear-gradient(180deg,#fff,#fafbfd)}
+.sec>h2 span.n{background:var(--azul);color:#fff;border-radius:12px;width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;font-size:15px;flex:none;transition:background .2s}
+.sec>h2 .estado{margin-left:auto;font-size:12px;font-weight:700;padding:5px 11px;border-radius:20px;background:var(--fondo);color:var(--t3);white-space:nowrap}
+.sec>h2 .estado.ok{background:var(--verde-l);color:var(--verde)}
+.sec.completa>h2 span.n{background:var(--verde)}
+.sec .cuerpo{padding:18px}
+.campo{margin-bottom:22px}.campo:last-child{margin-bottom:0}
+label.t{display:block;font-weight:700;font-size:14.5px;color:var(--t2);margin-bottom:8px}
+.req::after{content:" *";color:var(--rojo)}
+.ayuda{font-size:13px;color:var(--t3);margin-top:6px}
+input[type=text],input[type=date],select,textarea{width:100%;min-height:50px;padding:12px 14px;border:1.5px solid var(--borde);border-radius:12px;font:inherit;font-size:16px;background:#fff;color:var(--t1);transition:border-color .15s,box-shadow .15s}
+select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' fill='none' stroke='%235f6f86' stroke-width='2'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:42px}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--azul);box-shadow:0 0 0 4px rgba(0,83,187,.14)}
+input[readonly]{background:var(--fondo)}
+textarea{min-height:92px;resize:vertical}
+.dos{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px}.dos:last-child{margin-bottom:0}.dos>.campo{margin-bottom:0}@media(max-width:560px){.dos{grid-template-columns:1fr}}
+.chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+@media(max-width:560px){.chips{grid-template-columns:1fr 1fr}}
+.chip{border:1.5px solid var(--borde);background:#fff;border-radius:12px;padding:10px 12px;font-size:14px;cursor:pointer;user-select:none;line-height:1.25;display:flex;align-items:center;gap:8px;min-height:52px;color:var(--t2);transition:background .12s,border-color .12s,color .12s}
+.chip::before{content:"";flex:none;width:18px;height:18px;border-radius:5px;border:2px solid var(--borde);background:#fff;font-size:12px;line-height:14px;text-align:center}
+.chip:hover{border-color:var(--azul-m)}
+.chip.sel{background:var(--azul);border-color:var(--azul);color:#fff}
+.chip.sel::before{content:"✓";font-weight:800;color:var(--azul);border-color:#fff}
+.grupo{font-size:12px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--t3);margin:18px 0 8px}
+.grupo:first-child{margin-top:0}
+.aviso{border-radius:12px;padding:12px 14px;font-size:14px;margin-top:10px;line-height:1.45}
+.aviso.info{background:var(--azul-l);color:var(--navy)}.aviso.alerta{background:var(--naranja-l);color:#7a3f08}.aviso.error{background:var(--rojo-l);color:var(--rojo)}
+.aviso.ok{background:var(--verde-l);color:#14643a}
+.aviso button{margin-left:8px}
+.oculto{display:none!important}
+.sug{border:1px solid var(--borde);border-radius:12px;margin-top:6px;max-height:220px;overflow:auto;background:#fff;box-shadow:var(--sombra)}
+.sug div{padding:11px 14px;cursor:pointer;border-bottom:1px solid var(--fondo);font-size:15px}.sug div:hover{background:var(--azul-l)}
+.sug small{color:var(--t3)}
+.deriv{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.etq{background:var(--azul-l);border:1px solid var(--azul-m);color:var(--navy);border-radius:8px;padding:4px 10px;font-size:12.5px;font-weight:600}
+.gps{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end}
+@media(max-width:440px){.gps{grid-template-columns:1fr 1fr}.gps .btn{grid-column:1/-1}}
+.btn{border:none;border-radius:12px;padding:13px 18px;font:inherit;font-weight:700;cursor:pointer;min-height:48px;transition:transform .08s,background .15s}
+.btn:active{transform:scale(.98)}
+.btn.az{background:var(--azul);color:#fff}.btn.az:hover:not(:disabled){background:var(--azul-o)}
+.btn.nv{background:var(--navy);color:#fff}.btn.gr{background:var(--fondo);color:var(--t2);border:1px solid var(--borde)}
+.btn.pq{padding:7px 12px;font-size:13px;min-height:0}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn:focus-visible,.chip:focus-visible,.opcion:focus-visible,.tarjeta:focus-visible{outline:3px solid rgba(0,83,187,.45);outline-offset:2px}
+.opciones{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:520px){.opciones{grid-template-columns:1fr}}
+.opcion{border:1.5px solid var(--borde);border-radius:12px;padding:14px 16px 14px 52px;cursor:pointer;font-size:14px;position:relative;color:var(--t2);transition:background .12s,border-color .12s}
+.opcion::before{content:"";position:absolute;left:16px;top:16px;width:22px;height:22px;border-radius:50%;border:2px solid var(--borde);background:#fff}
+.opcion b{display:block;color:var(--navy);font-size:15px;margin-bottom:2px}
+.opcion.sel{border-color:var(--azul);background:var(--azul-l)}
+.opcion.sel::before{border-color:var(--azul);background:radial-gradient(circle,var(--azul) 0 45%,#fff 50%)}
+/* selects mostrados como tarjetas tocables (el select sigue en la página para el borrador y las pruebas) */
+.oculta-visual{position:absolute!important;width:1px!important;height:1px!important;min-height:0!important;padding:0!important;border:0!important;opacity:0;pointer-events:none;overflow:hidden}
+.tarjetas{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+@media(max-width:560px){.tarjetas{grid-template-columns:1fr 1fr}.tarjetas:not(.escala) .tarjeta:last-child:nth-child(odd){grid-column:1/-1}}
+.tarjeta{border:1.5px solid var(--borde);background:#fff;border-radius:12px;padding:10px 12px;font:600 14px/1.25 var(--fuente);color:var(--t2);cursor:pointer;text-align:left;min-height:52px;display:flex;flex-direction:column;justify-content:center;transition:background .12s,border-color .12s}
+.tarjeta small{display:block;font-weight:400;font-size:12.5px;line-height:1.3;color:var(--t3);margin-top:4px}
+.tarjeta.sel{border-color:var(--azul);background:var(--azul-l);color:var(--navy);box-shadow:inset 0 0 0 1px var(--azul)}
+.tarjetas.escala{grid-template-columns:repeat(5,1fr)}
+.tarjetas.escala .nv{display:block;font-size:22px;font-weight:800;color:var(--azul);line-height:1.1}
+@media(max-width:600px){.tarjetas.escala{grid-template-columns:1fr}.tarjetas.escala .tarjeta{display:grid;grid-template-columns:34px 1fr;column-gap:8px;align-items:center}.tarjetas.escala .nv{grid-row:span 2}}
+/* bloques destacados (observación del entorno, modalidad del hurto, motivo de no denuncia) */
+.bloque{border:1.5px dashed var(--azul-m);background:#fbfcfe;border-radius:14px;padding:16px}
+.bloque>h3{font-size:15px;color:var(--navy);margin-bottom:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.bloque>.ayuda:first-of-type{margin:0 0 14px}
+.defs{margin-top:12px;border-left:4px solid var(--azul);background:var(--azul-l);border-radius:0 12px 12px 0;padding:10px 14px;font-size:13.5px;color:var(--navy)}
+.defs p+p{margin-top:6px}
+.fotos{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px;margin-top:12px}
+.foto{position:relative;aspect-ratio:1/1;border-radius:12px;overflow:hidden;border:1px solid var(--borde)}
+.foto img{width:100%;height:100%;object-fit:cover;display:block}
+.foto button{position:absolute;top:6px;right:6px;background:rgba(13,31,60,.82);color:#fff;border:none;border-radius:50%;width:28px;height:28px;cursor:pointer}
+.enviar{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.97);backdrop-filter:blur(8px);border-top:1px solid var(--borde);padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));z-index:40}
+.enviar .in{max-width:760px;margin:0 auto;display:flex;gap:12px;align-items:center}
+.enviar .faltan{font-size:13px;color:var(--t3);line-height:1.25;max-width:42%}
+.enviar .faltan b{color:var(--navy);display:block;font-size:15px}
+.enviar .btn{flex:1;min-height:52px;font-size:16px}
+#exito .cuerpo{display:flex;flex-direction:column;gap:6px}
+#exito .codigo{font-family:Consolas,'Courier New',monospace;font-size:28px;font-weight:700;color:var(--azul);letter-spacing:1px;margin:6px 0;background:var(--azul-l);border-radius:12px;padding:12px 16px;text-align:center}
+#exito h2{color:var(--verde)}
+.resumen{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:14px;margin-top:8px}
+.resumen dt{color:var(--t3)}.resumen dd{font-weight:700;color:var(--navy);min-width:0;overflow-wrap:anywhere}
+#cargando{text-align:center;padding:48px 10px;color:var(--t3)}
+#cargando::before{content:"";display:block;width:36px;height:36px;margin:0 auto 14px;border-radius:50%;border:4px solid var(--azul-m);border-top-color:var(--azul);animation:gira 1s linear infinite}
+@keyframes gira{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){#cargando::before{animation:none}#progreso div{transition:none}}
+#modal,#revision{position:fixed;inset:0;background:rgba(13,31,60,.55);z-index:80;display:flex;align-items:flex-end;justify-content:center}
+#modal .caja,#revision .caja{background:#fff;border-radius:18px 18px 0 0;max-width:760px;width:100%;max-height:88vh;overflow:auto;padding:20px 18px calc(20px + env(safe-area-inset-bottom,0px))}
+#modal h3,#revision h3{color:var(--navy);font-size:18px;margin-bottom:6px}
+#revision .acciones,#modal .acciones{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+#revision .acciones .btn{flex:1}
+.caso{border:1.5px solid var(--borde);border-radius:12px;padding:12px 14px;margin-top:10px;cursor:pointer;font-size:14px}
+.caso.sel{border-color:var(--azul);background:var(--azul-l)}
+footer{text-align:center;font-size:12px;color:var(--t3);padding:8px 0 0;line-height:1.8}
+#mapa{height:300px;border-radius:12px;margin-top:8px;border:1px solid var(--borde);position:relative;z-index:0}   /* z-index 0: el mapa no tapa el encabezado ni las ventanas */
+.leaflet-container{font:inherit}
+/* AG-HTML 1.0 (Módulo 2): agregados propios del Agendamiento, con los mismos tokens */
+input[type=time]{width:100%;min-height:50px;padding:12px 14px;border:1.5px solid var(--borde);border-radius:12px;font:inherit;font-size:16px;background:#fff;color:var(--t1)}
+input[type=time]:focus{outline:none;border-color:var(--azul);box-shadow:0 0 0 4px rgba(0,83,187,.14)}
+.caso .cab{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
+.caso .cod{font-family:Consolas,'Courier New',monospace;font-weight:700;color:var(--azul)}
+.caso .prob{font-weight:700;color:var(--navy);margin:2px 0}
+.caso .meta{font-size:12.5px;color:var(--t3)}
+.pill{display:inline-block;font-size:11.5px;font-weight:700;padding:2px 9px;border-radius:20px;background:var(--fondo);color:var(--t2);margin-left:4px}
+.pill.alta{background:var(--rojo-l);color:var(--rojo)}.pill.media{background:var(--naranja-l);color:var(--naranja)}.pill.baja{background:var(--verde-l);color:var(--verde)}
+.sugerida{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.chip.lleno{opacity:.45;pointer-events:none}
+.contador{font-size:12.5px;font-weight:700;color:var(--t3);margin-left:6px}
+/* AG-HTML 1.1: la barra inferior dice qué falta y lleva al campo */
+.enviar .faltan{max-width:55%;cursor:pointer}.enviar .faltan b{font-size:13.5px;line-height:1.25}
+.enviar .faltan:focus-visible{outline:3px solid rgba(0,83,187,.45);outline-offset:2px;border-radius:6px}
+.resaltar{animation:resalta 1.6s ease-out}@keyframes resalta{0%{box-shadow:0 0 0 4px rgba(199,106,18,.55)}100%{box-shadow:0 0 0 0 rgba(199,106,18,0)}}
+@media(prefers-reduced-motion:reduce){.resaltar{animation:none;outline:3px solid var(--naranja)}}
+.copiar{display:flex;justify-content:center;gap:10px;align-items:center;margin-top:4px}
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&display=swap">
+</head>
+<body>
+<header>
+  <div class="in"><div class="marca" aria-hidden="true">360°</div><div><h1>Agendamiento de Actividades en Territorio</h1><p>CONVIVE 360° · Alcaldía Local de San Cristóbal · Localidad 4</p></div></div>
+  <nav id="pasos" aria-label="Pasos del formulario">
+    <button type="button" data-s="s1"><span class="pn">1</span><span class="tx">Quién</span></button>
+    <button type="button" data-s="s2"><span class="pn">2</span><span class="tx">Atiende</span></button>
+    <button type="button" data-s="s3"><span class="pn">3</span><span class="tx">Actividad</span></button>
+    <button type="button" data-s="s4"><span class="pn">4</span><span class="tx">PISCCJ</span></button>
+    <button type="button" data-s="s5"><span class="pn">5</span><span class="tx">Cuándo</span></button>
+  </nav>
+  <div id="progreso"><div></div></div>
+</header>
+<div id="banners"><div id="bannerBorrador" class="aviso info oculto"></div></div>
+
+<main>
+  <div id="cargando">Cargando catálogos…<br><small>La primera vez del día puede tardar hasta un minuto; después abre de inmediato.</small></div>
+  <div id="errorCarga" class="aviso error oculto"></div>
+
+  <form id="f" class="oculto" onsubmit="return false" autocomplete="off">
+    <!-- 1 · QUIÉN AGENDA -->
+    <section class="sec" id="s1"><h2><span class="n">1</span>Quién agenda<span class="estado" id="est1"></span></h2><div class="cuerpo">
+      <div class="dos">
+        <div class="campo"><label class="t req" for="area">Área</label>
+          <select id="area"><option value="">Seleccione…</option>
+            <option>Seguridad</option><option>Justicia Social</option><option>Tejido Social</option>
+            <option>Territorio Confiable</option><option>Gestores de Convivencia</option></select></div>
+        <div class="campo"><label class="t req" for="funcionario">Funcionario que agenda</label>
+          <select id="funcionario"><option value="">Elija primero el área…</option></select>
+          <div class="ayuda">La invitación de Calendar llega a su correo institucional.</div></div>
+      </div>
+      <div class="campo"><label class="t">Funcionarios que acompañan la actividad</label>
+        <div id="chipsAcomp" class="chips"></div>
+        <div class="ayuda">Opcional. También reciben la invitación de Calendar.</div></div>
+    </div></section>
+
+    <!-- 2 · QUÉ ATIENDE -->
+    <section class="sec" id="s2"><h2><span class="n">2</span>Qué atiende<span class="estado" id="est2"></span></h2><div class="cuerpo">
+      <div class="campo"><label class="t req">¿La actividad atiende una problemática registrada?</label>
+        <div class="opciones" id="tipoAtencion">
+          <div class="opcion" data-v="CASO"><b>Sí, atiende un caso</b>Responde a una problemática del diagnóstico (código DT-).</div>
+          <div class="opcion" data-v="TRANSVERSAL"><b>No, es transversal</b>Prevención general, articulación, capacitación, atención, reuniones…</div>
+        </div>
+        <div class="ayuda">Así se mide qué problemáticas reciben respuesta y en cuánto tiempo.</div></div>
+
+      <div id="transBox" class="campo oculto"><label class="t req" for="motivoTrans">Motivo de la actividad transversal</label>
+        <select id="motivoTrans"><option value="">Seleccione…</option></select>
+        <input type="text" id="motivoTransOtro" class="pii oculto" maxlength="150" placeholder="¿Cuál? (sin datos personales)" style="margin-top:8px">
+        <label id="sinTerrBox" class="oculto" style="display:flex;gap:9px;align-items:flex-start;font-size:14px;cursor:pointer;margin-top:12px">
+          <input type="checkbox" id="sinTerritorio" style="margin-top:3px"><span>Se realiza <b>en sede o de forma virtual</b> (no tiene barrio)</span></label></div>
+
+      <div id="codigoBox" class="campo oculto"><label class="t" for="codigoCaso">¿Tiene el código del caso?</label>
+        <div class="gps" style="grid-template-columns:1fr auto"><input type="text" id="codigoCaso" maxlength="16" placeholder="DT-AAAAMMDD-NNN" style="text-transform:uppercase">
+          <button type="button" class="btn az" id="btnBuscarCodigo">Buscar</button></div>
+        <div id="codigoEstado" class="aviso oculto" aria-live="polite"></div>
+        <div class="ayuda">Escríbalo y se llenan solos la UPZ, el barrio, el caso y la línea PISCCJ sugerida. Si no lo tiene, búsquelo por barrio aquí abajo.</div></div>
+
+      <div id="terrBox" class="oculto">
+        <div class="dos">
+          <div class="campo"><label class="t req" for="upz">UPZ</label>
+            <select id="upz"><option value="">Seleccione…</option>
+              <option value="32">32 · San Blas</option><option value="33">33 · Sosiego</option><option value="34">34 · 20 de Julio</option>
+              <option value="50">50 · La Gloria</option><option value="51">51 · Los Libertadores</option><option value="UPR">Zona rural (UPR)</option></select></div>
+          <div class="campo"><label class="t req" for="barrio">Barrio o sector</label>
+            <select id="barrio"><option value="">Elija primero la UPZ…</option></select>
+            <div id="derivBarrio" class="deriv"></div></div>
+        </div>
+      </div>
+
+      <div id="casosBox" class="campo oculto"><label class="t req">Caso que atiende</label>
+        <div id="casosEstado" class="aviso info">Elija el barrio para ver sus casos abiertos.</div>
+        <div id="casos" role="radiogroup" aria-label="Casos abiertos del barrio"></div>
+        <div class="ayuda">Solo aparecen casos abiertos (POR VALIDAR, VALIDADO, EN INTERVENCIÓN o PERSISTENTE), del más prioritario al menos. Al agendar, el caso pasa a <b>EN INTERVENCIÓN</b>.</div></div>
+    </div></section>
+
+    <!-- 3 · LA ACTIVIDAD -->
+    <section class="sec" id="s3"><h2><span class="n">3</span>La actividad<span class="estado" id="est3"></span></h2><div class="cuerpo">
+      <div class="campo"><label class="t req" for="nombre">Nombre de la actividad</label>
+        <input type="text" id="nombre" class="pii" maxlength="120" placeholder="Ej.: Recorrido de prevención en el parque principal"></div>
+      <div class="campo"><label class="t req" for="descripcion">Descripción</label>
+        <textarea id="descripcion" class="pii" maxlength="1000" placeholder="Qué se va a hacer y con quién. Sin nombres, teléfonos ni documentos de ciudadanos."></textarea></div>
+      <div class="campo"><label class="t req" for="enfoque">Enfoque</label>
+        <select id="enfoque"><option value="">Seleccione…</option>
+          <option value="PREVENCION">Prevención</option><option value="CONTROL">Control</option>
+          <option value="INTERINSTITUCIONAL">Interinstitucional (externa)</option><option value="INTERGRUPAL">Intergrupal (interna)</option></select></div>
+      <div class="campo"><label class="t req" for="tipoAct">Tipo de actividad</label>
+        <select id="tipoAct"><option value="">Elija primero el enfoque…</option></select>
+        <div id="defTipo" class="defs oculto"></div></div>
+      <div class="campo"><label class="t req" for="enmarca">Se enmarca en</label>
+        <select id="enmarca"><option value="">Seleccione…</option></select></div>
+      <div class="campo"><label class="t">¿Con quién articula?</label>
+        <div id="chipsArt" class="chips"></div>
+        <input type="text" id="artOtra" class="pii oculto" maxlength="100" placeholder="¿Con qué otra entidad?" style="margin-top:8px">
+        <div id="avisoArt" class="aviso alerta oculto"></div>
+        <div class="ayuda">Marque solo las entidades que de verdad participan. Si es solo el equipo de la Alcaldía, marque «Ninguna».</div></div>
+    </div></section>
+
+    <!-- 4 · PISCCJ -->
+    <section class="sec" id="s4"><h2><span class="n">4</span>Línea PISCCJ<span class="estado" id="est4"></span></h2><div class="cuerpo">
+      <div class="campo"><label class="t req" for="principal">Línea principal</label>
+        <select id="principal"><option value="">Seleccione…</option></select>
+        <div id="sugerida" class="sugerida oculto"></div>
+        <div id="avisoLinea" class="aviso alerta oculto"></div>
+        <div class="ayuda">La línea a la que <b>más</b> aporta la actividad. La estrategia (Seguridad, Convivencia o Justicia) se deriva sola.</div></div>
+      <div class="campo"><label class="t">Líneas secundarias <span class="contador" id="contSec">0 de 2</span></label>
+        <div id="chipsSec"></div>
+        <div class="ayuda">Máximo 2. Marcar muchas líneas hace imposible medir a cuál aporta realmente la actividad.</div></div>
+      <div class="campo"><label class="t" for="meta">Meta del Plan de Desarrollo Local</label>
+        <select id="meta"><option value="">No aplica / no sé</option></select></div>
+    </div></section>
+
+    <!-- 5 · DÓNDE Y CUÁNDO -->
+    <section class="sec" id="s5"><h2><span class="n">5</span>Dónde y cuándo<span class="estado" id="est5"></span></h2><div class="cuerpo">
+      <div class="campo"><label class="t req" for="modalidad">Modalidad</label>
+        <select id="modalidad"><option value="">Seleccione…</option></select></div>
+      <div class="campo"><label class="t req" for="direccion" id="lblDireccion">Dirección o punto de referencia</label>
+        <input type="text" id="direccion" class="pii" maxlength="200" placeholder="Ej.: Parque de La Gloria, Cra 3 Este con Cll 40 Sur">
+        <div class="ayuda" id="ayudaDireccion">Que permita llegar: nombre del lugar y una referencia (calles, salón comunal, colegio). Nunca la vivienda de una persona.</div></div>
+      <div class="dos">
+        <div class="campo"><label class="t req" for="fechaAct">Fecha de la actividad</label><input type="date" id="fechaAct"></div>
+        <div class="campo"><label class="t req" for="hora">Hora de inicio</label><input type="time" id="hora" step="300"></div>
+      </div>
+      <div id="avisoFecha" class="aviso alerta oculto"></div>
+      <div class="campo" style="margin-top:18px"><label class="t req" for="duracion">Duración</label>
+        <select id="duracion"><option value="">Seleccione…</option></select>
+        <div class="ayuda">El evento de Calendar dura lo que indique aquí.</div></div>
+      <div class="campo"><label class="t req" for="asistentes">Personas que se espera que asistan</label>
+        <select id="asistentes"><option value="">Seleccione…</option></select>
+        <div class="ayuda">Un rango aproximado; en el reporte se compara con lo que realmente pasó.</div></div>
+      <div class="campo" style="margin-top:18px"><label class="t" for="correo">¿Desea recibir el correo de confirmación?</label>
+        <select id="correo"><option value="Si">Sí</option><option value="No">No</option></select></div>
+      <div id="piiAviso" class="aviso error oculto">Hay un teléfono, correo o número de documento en un texto: bórrelo antes de enviar.</div>
+      <div id="errores" class="aviso error oculto"></div>
+    </div></section>
+  </form>
+
+  <section id="exito" class="sec oculto"><h2 id="exitoTitulo">✔ Actividad agendada</h2><div class="cuerpo">
+    <div id="exitoMsg"></div>
+    <div class="codigo" id="exitoCodigo"></div>
+    <div class="copiar"><button type="button" class="btn gr pq" id="btnCopiar">📋 Copiar código</button><span id="copiado" class="ayuda" aria-live="polite"></span></div>
+    <div class="ayuda" style="text-align:center">Guarde este código: al reportar la actividad en Camina Segura, escríbalo al inicio y el reporte se llena solo.</div>
+    <dl class="resumen" id="exitoResumen"></dl>
+    <div id="exitoAvisos"></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
+      <button type="button" class="btn nv" id="btnMismoCaso">Agendar otra para el mismo caso</button>
+      <button type="button" class="btn gr" id="btnOtra">Agendar otra actividad</button>
+    </div>
+  </div></section>
+  <footer>CONVIVE 360° · Agendamiento de actividades · <span id="ver"></span></footer>
+</main>
+
+<div id="revision" class="oculto" role="dialog" aria-modal="true" aria-labelledby="revTitulo"><div class="caja">
+  <h3 id="revTitulo">Revise antes de agendar</h3>
+  <div class="ayuda">Se creará el evento en Calendar y se enviarán las invitaciones.</div>
+  <dl class="resumen" id="revResumen"></dl>
+  <div class="acciones"><button type="button" class="btn az" id="btnConfirmar">Confirmar y agendar</button><button type="button" class="btn gr" id="btnCorregir">Corregir</button></div>
+</div></div>
+
+<div class="enviar" id="barraEnviar"><div class="in">
+  <span class="faltan" id="faltanTxt" aria-live="polite" role="button" tabindex="0" title="Ir a lo que falta"></span>
+  <button type="button" class="btn az" id="btnEnviar" disabled>Agendar actividad</button>
+</div></div>
+
+<script>
+/* ══════════════ CONFIGURACIÓN (completar al desplegar) ══════════════ */
+const CONFIG = {
+  VERSION: 'AG-HTML-1.1',
+  SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwi6BllrgobQjspAHppkSxqTiwubOYMBuJEQJ3Iq6KsomEeRhyfSqvYLtOFPEWRTXY/exec',   // el MISMO servicio del formulario de problemáticas (Problematicas.gs v3.2 + Agendamiento.gs)
+  REVISION_ANTES_DE_ENVIAR: true,
+  CACHE_HORAS: 24, DIAS_MAX_ATRAS: 30, MAX_SECUNDARIAS: 2
+};
+
+/* ══════════════ UTILIDADES (iguales al formulario de problemáticas) ══════════════ */
+const $ = id => document.getElementById(id);
+const norm = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase().replace(/\s+/g, ' ').trim();
+const fechaISO = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+const RE_PII = [/(^|\D)3\d{2}[\s.-]?\d{3}[\s.-]?\d{4}(\D|$)/, /[\w.+-]+@[\w-]+\.[\w.]+/, /\b(c\.?\s?c\.?|c[eé]dula|documento)\s*(n[oº°.]*)?\s*:?\s*\d{6,10}\b/i];
+const tienePii = s => RE_PII.some(r => r.test(String(s || '')));
+const leer = k => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } };
+const guardar = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } };
+const borrar = k => { try { localStorage.removeItem(k); } catch (e) {} };
+const nuevoId = () => (window.crypto && crypto.randomUUID ? crypto.randomUUID() : 'id-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10));
+const esc = s => String(s === null || s === undefined ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+function mostrar(id, html, tipo) { const el = $(id); el.className = 'aviso ' + (tipo || 'info'); el.innerHTML = html; el.classList.remove('oculto'); }
+function ocultar(id) { $(id).classList.add('oculto'); }
+const sel = { acomp: new Set(), art: new Set(), sec: new Set() };
+let CAT = null, FUN = [], LISTAS = null, tipoAtencion = '', casos = [], casoElegido = null, idEnvio = nuevoId(), restaurando = false, ultimoEnvio = null, pedidoCasos = 0;
+
+async function api(params) {
+  let d;
+  if (window.SIMULADOR) d = await window.SIMULADOR.get(params);
+  else {
+    if (CONFIG.SCRIPT_URL.indexOf('PEGAR_AQUI') === 0) throw new Error('Servicio no configurado (SCRIPT_URL).');
+    const r = await fetch(CONFIG.SCRIPT_URL + '?' + new URLSearchParams(params).toString(), { method: 'GET' });
+    d = await r.json();
+  }
+  if (!d || d.status !== 'ok') {   // el error lleva el estado (p. ej. not_found) para dar un mensaje claro
+    const e = new Error((d && (d.msg || (d.errores || []).join(' '))) || 'Respuesta inválida del servicio');
+    e.estado = d && d.status; throw e;
+  }
+  return d;
+}
+async function enviarPost(payload) {
+  if (window.SIMULADOR) return window.SIMULADOR.post(payload);
+  if (CONFIG.SCRIPT_URL.indexOf('PEGAR_AQUI') === 0) throw new Error('Servicio no configurado (SCRIPT_URL).');
+  // text/plain = petición simple (sin preflight CORS); el servidor responde JSON legible
+  const r = await fetch(CONFIG.SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+  return r.json();
+}
+
+/* ══════════════ CARGA ══════════════ */
+async function cargar() {
+  $('ver').textContent = CONFIG.VERSION;
+  const cache = leer('cv360_ag_cat');
+  // la copia guardada vale solo para la misma versión del formulario (una versión nueva puede traer listas nuevas)
+  const fresco = cache && cache.v === CONFIG.VERSION && (Date.now() - cache.t) < CONFIG.CACHE_HORAS * 3600e3;
+  try {
+    if (fresco) CAT = cache.cat;
+    else { CAT = await api({ recurso: 'inicio_agendamiento' }); guardar('cv360_ag_cat', { t: Date.now(), v: CONFIG.VERSION, cat: CAT }); }
+  } catch (e) {
+    if (cache) { CAT = cache.cat; mostrar('errorCarga', 'Sin conexión con el servicio: se usan los catálogos guardados. Para agendar se necesita conexión.', 'alerta'); }
+    else { ocultar('cargando'); mostrar('errorCarga', 'No fue posible cargar los catálogos: ' + esc(e.message), 'error'); return; }
+  }
+  FUN = CAT.funcionarios || []; LISTAS = CAT.listas || {};
+  CONFIG.MAX_SECUNDARIAS = LISTAS.max_secundarias || CONFIG.MAX_SECUNDARIAS;
+  pintar();
+  const ult = leer('cv360_ag_ultimo');
+  if (ult && ult.area) { $('area').value = ult.area; pintarFuncionarios(); if (ult.fun) $('funcionario').value = ult.fun; }
+  pintarAcompanantes();
+  if (!desdeEnlace()) restaurarBorrador();
+  ocultar('cargando'); $('f').classList.remove('oculto');
+  progreso();
+}
+
+function opciones(id, lista, valor, texto, ph) {
+  const s = $(id); s.innerHTML = '<option value="">' + (ph || 'Seleccione…') + '</option>';
+  lista.forEach(x => { const o = document.createElement('option'); o.value = valor(x); o.textContent = texto(x); s.appendChild(o); });
+}
+const lineaPor = c => (CAT.LINEAS_PISCCJ || []).find(l => l.COD_LINEA === c);
+const textoLinea = l => l.COD_LINEA + ' · ' + l.LINEA + (norm(l.COMPETENCIA_DISTRITAL) === 'SI' ? ' (competencia distrital)' : '');
+const probPor = c => (CAT.PROBLEMATICAS || []).find(p => p.COD_PROBLEMATICA === c) || {};
+const barrioPor = c => (CAT.TERRITORIO || []).find(b => b.COD_BARRIO === c);
+
+function pintar() {
+  opciones('motivoTrans', LISTAS.motivos_transversal || [], x => x, x => x);
+  opciones('enmarca', LISTAS.enmarca || [], x => x, x => x);
+  comoTarjetas('motivoTrans'); comoTarjetas('enmarca');
+  comoTarjetas('enfoque', { desc: { PREVENCION: 'Sensibilización y reducción de riesgos', CONTROL: 'Supervisión y orden en zonas vulnerables',
+    INTERINSTITUCIONAL: 'Con otras entidades', INTERGRUPAL: 'Coordinación dentro de la Alcaldía' } });
+  comoTarjetas('correo');
+  opciones('modalidad', Object.keys(LISTAS.modalidades || {}), k => k, k => LISTAS.modalidades[k]);
+  opciones('duracion', Object.keys(LISTAS.duraciones || {}).sort((a, b) => a - b), k => k, k => LISTAS.duraciones[k]);
+  opciones('asistentes', LISTAS.asistentes || [], x => x, x => x);
+  comoTarjetas('modalidad', { desc: { PRESENCIAL: 'En el territorio o en sede', VIRTUAL: 'Por Meet, Teams u otra plataforma', MIXTA: 'Presencial con conexión virtual' } });
+  comoTarjetas('duracion'); comoTarjetas('asistentes');
+  // líneas PISCCJ agrupadas por estrategia
+  const s = $('principal'); s.innerHTML = '<option value="">Seleccione…</option>';
+  ['Seguridad', 'Convivencia', 'Justicia'].forEach(e => {
+    const g = document.createElement('optgroup'); g.label = e;
+    CAT.LINEAS_PISCCJ.filter(l => l.ESTRATEGIA === e).forEach(l => { const o = document.createElement('option'); o.value = l.COD_LINEA; o.textContent = textoLinea(l); g.appendChild(o); });
+    s.appendChild(g);
+  });
+  opciones('meta', CAT.METAS || [], m => m.COD_META, m => m.COD_META + ' · ' + m.META, 'No aplica / no sé');
+  pintarChipsSec(); pintarArticulacion();
+  const hoy = new Date(); $('fechaAct').min = fechaISO(new Date(hoy.getTime() - CONFIG.DIAS_MAX_ATRAS * 864e5));
+  $('fechaAct').max = fechaISO(new Date(hoy.getTime() + 365 * 864e5));
+}
+function pintarFuncionarios() {
+  const a = norm($('area').value);
+  opciones('funcionario', FUN.filter(f => norm(f.AREA) === a), f => f.ID_FUNCIONARIO, f => f.NOMBRE_VISIBLE, a ? 'Seleccione…' : 'Elija primero el área…');
+}
+function chip(cont, texto, activo, alTocar, titulo) {
+  const c = document.createElement('div'); c.className = 'chip' + (activo ? ' sel' : ''); c.tabIndex = 0; c.setAttribute('role', 'checkbox');
+  c.setAttribute('aria-checked', String(!!activo)); c.textContent = texto; if (titulo) c.title = titulo;
+  c.onclick = alTocar; c.onkeydown = e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); alTocar(); } };
+  cont.appendChild(c); return c;
+}
+function alternar(set, v) { set.has(v) ? set.delete(v) : set.add(v); }
+function pintarAcompanantes() {
+  const cont = $('chipsAcomp'); cont.innerHTML = '';
+  const yo = $('funcionario').value;
+  if (yo) sel.acomp.delete(yo);
+  FUN.filter(f => f.ID_FUNCIONARIO !== yo).forEach(f => chip(cont, f.NOMBRE_VISIBLE + ' · ' + f.AREA, sel.acomp.has(f.ID_FUNCIONARIO), () => { alternar(sel.acomp, f.ID_FUNCIONARIO); pintarAcompanantes(); cambio(); }));
+}
+const MAX_ART_SIN_AVISO = 5;
+function pintarArticulacion() {
+  const cont = $('chipsArt'), ning = LISTAS.sin_articulacion; cont.innerHTML = '';
+  (LISTAS.entidades || []).forEach(x => chip(cont, x, sel.art.has(x), () => {
+    if (x === ning) { const tenia = sel.art.has(ning); sel.art.clear(); if (!tenia) sel.art.add(ning); }   // «Ninguna» deja solo esa
+    else { sel.art.delete(ning); alternar(sel.art, x); }
+    pintarArticulacion(); cambio();
+  }));
+  $('artOtra').classList.toggle('oculto', !sel.art.has('Otra'));
+  const n = [...sel.art].filter(x => x !== ning).length;
+  if (n > MAX_ART_SIN_AVISO) mostrar('avisoArt', 'Marcó <b>' + n + ' entidades</b>. ¿Todas participan de verdad en esta actividad? Si marca todas, no se puede medir con quién se articula.', 'alerta');
+  else ocultar('avisoArt');
+}
+function pintarChipsSec() {
+  const cont = $('chipsSec'); cont.innerHTML = '';
+  const p = $('principal').value; sel.sec.delete(p);
+  const lleno = sel.sec.size >= CONFIG.MAX_SECUNDARIAS;
+  const cand = candidatasCaso().filter(c => c !== p);
+  const grupos = cand.length ? [['Sugeridas para este caso', cand.map(lineaPor)]] : [];
+  ['Seguridad', 'Convivencia', 'Justicia'].forEach(e => grupos.push([e, CAT.LINEAS_PISCCJ.filter(l => l.ESTRATEGIA === e && l.COD_LINEA !== p && cand.indexOf(l.COD_LINEA) < 0)]));
+  grupos.forEach(([nombre, lista], gi) => {
+    const g = document.createElement('div'); g.className = 'grupo'; g.textContent = nombre; cont.appendChild(g);
+    const w = document.createElement('div'); w.className = 'chips'; w.dataset.grupo = cand.length && gi === 0 ? 'sugeridas' : nombre; cont.appendChild(w);
+    lista.forEach(l => {
+      const c = chip(w, l.COD_LINEA + ' · ' + l.LINEA, sel.sec.has(l.COD_LINEA), () => { alternar(sel.sec, l.COD_LINEA); pintarChipsSec(); cambio(); });
+      if (lleno && !sel.sec.has(l.COD_LINEA)) c.classList.add('lleno');
+    });
+  });
+  $('contSec').textContent = sel.sec.size + ' de ' + CONFIG.MAX_SECUNDARIAS;
+}
+function pintarTipos() {
+  const e = $('enfoque').value, previo = $('tipoAct').value;
+  const lista = (CAT.TIPOS_ACTIVIDAD || []).filter(t => e && (norm(t.ENFOQUE) === e || norm(t.ENFOQUE) === 'TRANSVERSAL'));
+  opciones('tipoAct', lista, t => t.COD_TIPO_ACT, t => t.TIPO_ACTIVIDAD, e ? 'Seleccione…' : 'Elija primero el enfoque…');
+  if (lista.some(t => t.COD_TIPO_ACT === previo)) $('tipoAct').value = previo;
+  mostrarDefTipo();
+}
+function mostrarDefTipo() {
+  const t = (CAT.TIPOS_ACTIVIDAD || []).find(x => x.COD_TIPO_ACT === $('tipoAct').value);
+  $('defTipo').classList.toggle('oculto', !(t && t.DEFINICION));
+  if (t) $('defTipo').innerHTML = '<b>' + esc(t.TIPO_ACTIVIDAD) + ':</b> ' + esc(t.DEFINICION);
+}
+
+/* ══════════════ QUÉ ATIENDE: caso o transversal ══════════════ */
+function elegirTipoAtencion(v) {
+  tipoAtencion = v;
+  document.querySelectorAll('#tipoAtencion .opcion').forEach(o => { o.classList.toggle('sel', o.dataset.v === v); o.setAttribute('aria-checked', String(o.dataset.v === v)); });
+  if (v !== 'CASO') { casoElegido = null; }
+  if (v === 'CASO' && !$('enmarca').value) { $('enmarca').value = 'Seguimiento Estrategias PISCCJ'; }
+  if (v === 'CASO' && $('barrio').value) buscarCasos();
+  bloquesCondicionales();
+}
+const SUGERIR_ENMARCA = { 'Reunión de equipo o gestión administrativa': 'Reuniones de Equipos', 'Seguimiento de metas u OKR': 'OKRs',
+  'Atención a la ciudadanía (Casa Ciudadana, Orfeo, PQRS)': 'Atención Casa Ciudadana', 'Prevención y promoción general (sin caso puntual)': 'Seguimiento Estrategias PISCCJ' };
+function alCambiarMotivo() {
+  const m = $('motivoTrans').value;
+  if (SUGERIR_ENMARCA[m] && !$('enmarca').dataset.tocado) $('enmarca').value = SUGERIR_ENMARCA[m];
+  if ((LISTAS.transversal_sin_territorio || []).indexOf(m) < 0) $('sinTerritorio').checked = false;
+}
+function bloquesCondicionales() {
+  const m = $('motivoTrans').value, sinTerrPosible = tipoAtencion === 'TRANSVERSAL' && (LISTAS.transversal_sin_territorio || []).indexOf(m) >= 0;
+  $('transBox').classList.toggle('oculto', tipoAtencion !== 'TRANSVERSAL');
+  $('motivoTransOtro').classList.toggle('oculto', m !== 'Otro');
+  $('sinTerrBox').classList.toggle('oculto', !sinTerrPosible);
+  $('terrBox').classList.toggle('oculto', !tipoAtencion || (tipoAtencion === 'TRANSVERSAL' && $('sinTerritorio').checked));
+  $('casosBox').classList.toggle('oculto', tipoAtencion !== 'CASO');
+  $('codigoBox').classList.toggle('oculto', tipoAtencion !== 'CASO');
+  $('artOtra').classList.toggle('oculto', !sel.art.has('Otra'));
+}
+function pintarBarrios() {
+  const u = $('upz').value, previo = $('barrio').value;
+  const lista = (CAT.TERRITORIO || []).filter(b => b.UPZ === u).sort((a, b) => a.NOMBRE_VISIBLE.localeCompare(b.NOMBRE_VISIBLE, 'es'));
+  opciones('barrio', lista, b => b.COD_BARRIO, b => b.NOMBRE_VISIBLE, u ? 'Seleccione…' : 'Elija primero la UPZ…');
+  if (lista.some(b => b.COD_BARRIO === previo)) $('barrio').value = previo;
+  mostrarDerivBarrio();
+}
+function mostrarDerivBarrio() {
+  const b = barrioPor($('barrio').value);
+  $('derivBarrio').innerHTML = b ? '<span class="etq">' + esc(b.COD_BARRIO) + '</span><span class="etq">Zona ' + esc(String(b.ZONA).replace('Z', '')) + '</span>' : '';
+}
+async function buscarCasos(preferido) {
+  const cb = $('barrio').value, n = ++pedidoCasos;
+  casos = []; if (!preferido) casoElegido = null; pintarCasos();
+  if (!cb) { mostrar('casosEstado', 'Elija el barrio para ver sus casos abiertos.', 'info'); return; }
+  mostrar('casosEstado', 'Buscando casos abiertos del barrio…', 'info');
+  try {
+    const d = await api({ recurso: 'casos_abiertos', cod_barrio: cb });
+    if (n !== pedidoCasos) return;   // llegó tarde: el funcionario ya cambió de barrio
+    casos = d.casos || [];
+    if (preferido) { casoElegido = casos.find(c => c.ID_PROBLEMATICA === preferido) || null; if (casoElegido) aplicarSugerenciaSiVacia(); }
+    if (!casos.length) mostrar('casosEstado', 'Este barrio no tiene casos abiertos. Si la actividad no responde a un caso, elija «No, es transversal»; si hay una situación nueva, regístrela primero en el formulario de problemáticas.', 'alerta');
+    else if (preferido && !casoElegido) mostrar('casosEstado', 'El caso ' + esc(preferido) + ' ya no está abierto. Elija otro o regístrelo de nuevo.', 'alerta');
+    else ocultar('casosEstado');
+  } catch (e) {
+    if (n !== pedidoCasos) return;
+    mostrar('casosEstado', 'No se pudieron consultar los casos (' + esc(e.message) + '). Revise la conexión.', 'error');
+  }
+  pintarCasos(); progreso();
+}
+function pintarCasos() {
+  const cont = $('casos'); cont.innerHTML = '';
+  casos.forEach(c => {
+    const p = probPor(c.COD_PROBLEMATICA), pr = norm(c.PRIORIDAD);
+    const d = document.createElement('div'); d.className = 'caso' + (casoElegido && casoElegido.ID_PROBLEMATICA === c.ID_PROBLEMATICA ? ' sel' : '');
+    d.tabIndex = 0; d.setAttribute('role', 'radio'); d.dataset.codigo = c.ID_PROBLEMATICA;
+    d.setAttribute('aria-checked', String(d.classList.contains('sel')));
+    d.innerHTML = '<div class="cab"><span class="cod">' + esc(c.ID_PROBLEMATICA) + '</span><span>' + esc(c.ESTADO) +
+      (c.PRIORIDAD ? '<span class="pill ' + (pr === 'ALTA' ? 'alta' : pr === 'MEDIA' ? 'media' : 'baja') + '">Prioridad ' + esc(c.PRIORIDAD.toLowerCase()) + '</span>' : '') + '</span></div>' +
+      '<div class="prob">' + esc(p.SUBTIPO || c.COD_PROBLEMATICA) + '</div>' +
+      '<div class="meta">' + esc(c.N_REPORTES) + ' reporte(s) · ' + esc(c.N_ACTIVIDADES) + ' actividad(es)' +
+      (c.FECHA_ULTIMO_REPORTE ? ' · último reporte ' + esc(c.FECHA_ULTIMO_REPORTE) : '') + (c.COD_AREA_CASO ? ' · ' + esc(c.COD_AREA_CASO) : '') + '</div>';
+    const elegir = () => { casoElegido = c; aplicarSugerenciaSiVacia(); pintarCasos(); cambio(); };
+    d.onclick = elegir; d.onkeydown = e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); elegir(); } };
+    cont.appendChild(d);
+  });
+  sugerirLinea();
+  pintarChipsSec();
+}
+/* ── Líneas PISCCJ según la problemática del caso (las define el mismo catálogo que usa el formulario de problemáticas) ── */
+function lineaSugeridaCaso() {
+  if (!casoElegido) return '';
+  const m = String(casoElegido.LINEA_SUGERIDA || '').match(/L\d{2}/) || String(probPor(casoElegido.COD_PROBLEMATICA).LINEA_PRINCIPAL_SUGERIDA || '').match(/L\d{2}/);
+  return m && lineaPor(m[0]) ? m[0] : '';
+}
+/** Principal sugerida + LINEAS_CANDIDATAS de la problemática, sin repetir y solo las que existen en el catálogo. */
+function candidatasCaso() {
+  if (!casoElegido || tipoAtencion !== 'CASO') return [];
+  const l = [lineaSugeridaCaso()].concat(String(probPor(casoElegido.COD_PROBLEMATICA).LINEAS_CANDIDATAS || '').match(/L\d{2}/g) || []);
+  return l.filter((x, i) => x && l.indexOf(x) === i && lineaPor(x));
+}
+/** Al elegir un caso, si aún no hay línea principal, se pone la sugerida (el funcionario la puede cambiar). */
+function aplicarSugerenciaSiVacia() {
+  const s = lineaSugeridaCaso();
+  if (s && !$('principal').value) { $('principal').value = s; sel.sec.delete(s); }
+}
+/** Aviso (no bloquea) si la línea principal no está entre las sugeridas para la problemática del caso. */
+function lineaFueraDeCandidatas() {
+  const c = candidatasCaso(), p = $('principal').value;
+  return c.length && p && c.indexOf(p) < 0 ? c : null;
+}
+function avisoLinea() {
+  const c = lineaFueraDeCandidatas();
+  if (!c) { ocultar('avisoLinea'); return; }
+  const l = lineaPor($('principal').value), sub = probPor(casoElegido.COD_PROBLEMATICA).SUBTIPO || casoElegido.COD_PROBLEMATICA;
+  mostrar('avisoLinea', 'La línea <b>' + esc(textoLinea(l)) + '</b> no está entre las sugeridas para «' + esc(sub) + '» (' + esc(c.join(', ')) +
+    '). Puede dejarla si la actividad realmente aporta a esa línea; si no, elija una de las sugeridas.', 'alerta');
+}
+/** Con un caso elegido se muestra su línea sugerida con el botón «Usar esta línea». */
+function sugerirLinea() {
+  const box = $('sugerida');
+  const s = lineaSugeridaCaso(), l = s ? lineaPor(s) : null;
+  if (!l || $('principal').value === l.COD_LINEA) { box.classList.add('oculto'); return; }
+  box.innerHTML = '<span class="etq">Sugerida para ' + esc(casoElegido.ID_PROBLEMATICA) + ': ' + esc(textoLinea(l)) + '</span><button type="button" class="btn gr pq" id="btnUsarSug">Usar esta línea</button>';
+  box.classList.remove('oculto');
+  $('btnUsarSug').onclick = () => { $('principal').value = l.COD_LINEA; $('principal').dispatchEvent(new Event('change', { bubbles: true })); };
+}
+
+/** «¿Tiene el código del caso?»: consulta pública ?codigo= (Problematicas.gs) → llena UPZ, barrio, caso y línea. */
+const ABIERTOS = ['POR VALIDAR', 'VALIDADO', 'EN INTERVENCION', 'PERSISTENTE'];
+async function buscarPorCodigo() {
+  const c = $('codigoCaso').value.trim().toUpperCase();
+  if (!/^DTH?-\d{8}-\d{3}$/.test(c)) { mostrar('codigoEstado', 'El código tiene la forma DT-AAAAMMDD-NNN (o DTH-… para los casos históricos).', 'error'); return; }
+  mostrar('codigoEstado', 'Buscando ' + esc(c) + '…', 'info');
+  let d;
+  try { d = await api({ codigo: c }); }
+  catch (e) {
+    mostrar('codigoEstado', e.estado === 'not_found' ? 'No existe el caso ' + esc(c) + '. Revise el código.' : 'No se pudo consultar el caso (' + esc(e.message) + '). Revise la conexión.', 'error');
+    return;
+  }
+  if (ABIERTOS.indexOf(norm(d.ESTADO)) < 0) {
+    mostrar('codigoEstado', 'El caso ' + esc(c) + ' está <b>' + esc(d.ESTADO) + '</b>: no se puede agendar sobre él. Si la situación sigue, regístrela de nuevo en el formulario de problemáticas.', 'error');
+    return;
+  }
+  const b = barrioPor(String(d.COD_BARRIO || '').toUpperCase()), sub = probPor(d.COD_PROBLEMATICA).SUBTIPO || d.COD_PROBLEMATICA;
+  sel.sec.clear(); $('principal').value = '';   // otro caso: la línea se vuelve a sugerir según su problemática
+  if (b) {
+    $('upz').value = b.UPZ; pintarBarrios(); $('barrio').value = b.COD_BARRIO; mostrarDerivBarrio();
+    await buscarCasos(c);
+  } else {   // barrio escrito a mano («Otro»): no aparece en la lista por barrio; se elige directo y se pide el barrio de la actividad
+    casoElegido = { ID_PROBLEMATICA: c, COD_AREA_CASO: d.COD_AREA_CASO, COD_PROBLEMATICA: d.COD_PROBLEMATICA, ESTADO: d.ESTADO, PRIORIDAD: d.PRIORIDAD,
+                    N_REPORTES: d.N_REPORTES, N_ACTIVIDADES: d.N_ACTIVIDADES, LINEA_SUGERIDA: d.LINEA_SUGERIDA, _sinBarrio: true };
+    casos = [casoElegido]; aplicarSugerenciaSiVacia(); ocultar('casosEstado'); pintarCasos();
+  }
+  if (casoElegido && casoElegido.ID_PROBLEMATICA === c)
+    mostrar('codigoEstado', '✓ Caso encontrado: <b>' + esc(c) + '</b> · ' + esc(sub) + ' · ' + esc(d.ESTADO) +
+      (b ? '' : '. <b>Este caso no tiene barrio del catálogo:</b> elija abajo la UPZ y el barrio donde se hará la actividad.'), b ? 'ok' : 'alerta');
+  progreso(); guardarBorrador();
+}
+
+/* ══════════════ VALIDACIÓN Y PROGRESO ══════════════ */
+const v = id => !!String($(id).value || '').trim();
+function fechaRango() {
+  const f = $('fechaAct').value, h = $('hora').value;
+  if (!f) return { ok: false };
+  const ini = new Date(f + 'T' + (h || '00:00')), ahora = new Date();
+  return { ok: ini.getTime() >= ahora.getTime() - CONFIG.DIAS_MAX_ATRAS * 864e5 && ini.getTime() <= ahora.getTime() + 365 * 864e5, pasada: !!h && ini < ahora };
+}
+const minDireccion = () => $('modalidad').value === 'VIRTUAL' ? 3 : 8;
+function textosDireccion() {
+  const virt = $('modalidad').value === 'VIRTUAL';
+  $('lblDireccion').textContent = virt ? 'Plataforma o enlace de la reunión' : 'Dirección o punto de referencia';
+  $('direccion').placeholder = virt ? 'Ej.: Google Meet (el enlace va en la invitación)' : 'Ej.: Parque de La Gloria, Cra 3 Este con Cll 40 Sur';
+  $('ayudaDireccion').textContent = virt ? 'No escriba contraseñas de la reunión.' : 'Que permita llegar: nombre del lugar y una referencia (calles, salón comunal, colegio). Nunca la vivienda de una persona.';
+}
+function territorioOk() { return (tipoAtencion === 'TRANSVERSAL' && $('sinTerritorio').checked) || (v('upz') && v('barrio')); }
+function faltanSeccion() {
+  const trans = tipoAtencion === 'TRANSVERSAL';
+  const art = !sel.art.has('Otra') || $('artOtra').value.trim().length >= 2;
+  return [
+    [v('area'), v('funcionario')],
+    [!!tipoAtencion, territorioOk(), tipoAtencion === 'CASO' ? !!casoElegido : (trans ? v('motivoTrans') && ($('motivoTrans').value !== 'Otro' || $('motivoTransOtro').value.trim().length >= 5) : false)],
+    [$('nombre').value.trim().length >= 5, $('descripcion').value.trim().length >= 10, v('enfoque'), v('tipoAct'), v('enmarca'), art],
+    [v('principal'), sel.sec.size <= CONFIG.MAX_SECUNDARIAS],
+    [v('modalidad'), $('direccion').value.trim().length >= minDireccion(), v('fechaAct') && fechaRango().ok, /^\d{2}:\d{2}$/.test($('hora').value), v('duracion'), v('asistentes'),
+     ![...document.querySelectorAll('.pii')].some(el => tienePii(el.value))]
+  ].map(a => ({ total: a.length, faltan: a.filter(x => !x).length }));
+}
+/** Pendientes en el orden del formulario; validar.campos[i] es el campo del pendiente i (la barra inferior lleva allí). */
+function validar() {
+  const e = [], ids = [], add = (m, id) => { e.push(m); ids.push(id); };
+  if (!v('area')) add('Elija el área', 'area'); else if (!v('funcionario')) add('Elija el funcionario que agenda', 'funcionario');
+  if (!tipoAtencion) add('Indique si atiende un caso o es transversal', 'tipoAtencion');
+  if (tipoAtencion === 'TRANSVERSAL' && !v('motivoTrans')) add('Elija el motivo de la actividad transversal', 'motivoTrans');
+  if ($('motivoTrans').value === 'Otro' && tipoAtencion === 'TRANSVERSAL' && $('motivoTransOtro').value.trim().length < 5) add('Escriba cuál es el motivo «Otro»', 'motivoTransOtro');
+  if (tipoAtencion && !territorioOk()) add(v('upz') ? 'Elija el barrio' : 'Elija la UPZ y el barrio', v('upz') ? 'barrio' : 'upz');
+  if (tipoAtencion === 'CASO' && !casoElegido) add('Elija el caso que atiende', 'casos');
+  if ($('nombre').value.trim().length < 5) add('Escriba el nombre de la actividad', 'nombre');
+  if ($('descripcion').value.trim().length < 10) add('Describa la actividad', 'descripcion');
+  if (!v('enfoque')) add('Elija el enfoque', 'enfoque');
+  if (!v('tipoAct')) add('Elija el tipo de actividad', 'tipoAct');
+  if (!v('enmarca')) add('Elija en qué se enmarca', 'enmarca');
+  if (sel.art.has('Otra') && $('artOtra').value.trim().length < 2) add('Escriba con qué otra entidad articula', 'artOtra');
+  if (!v('principal')) add('Elija la línea PISCCJ principal', 'principal');
+  if (sel.sec.size > CONFIG.MAX_SECUNDARIAS) add('Máximo ' + CONFIG.MAX_SECUNDARIAS + ' líneas secundarias', 'chipsSec');
+  if (!v('modalidad')) add('Indique si es presencial, virtual o mixta', 'modalidad');
+  if ($('direccion').value.trim().length < minDireccion())
+    add($('modalidad').value === 'VIRTUAL' ? 'Escriba la plataforma de la reunión' : 'Escriba una dirección que permita llegar (mínimo 8 caracteres)', 'direccion');
+  if (!v('fechaAct')) add('Indique la fecha', 'fechaAct'); else if (!fechaRango().ok) add('La fecha debe estar entre hace ' + CONFIG.DIAS_MAX_ATRAS + ' días y dentro de un año', 'fechaAct');
+  if (!/^\d{2}:\d{2}$/.test($('hora').value)) add('Indique la hora de inicio', 'hora');
+  if (!v('duracion')) add('Indique cuánto dura', 'duracion');
+  if (!v('asistentes')) add('Indique cuántas personas se esperan', 'asistentes');
+  const pii = [...document.querySelectorAll('.pii')].find(el => tienePii(el.value));
+  if (pii) add('Quite teléfonos, correos o documentos de los textos', pii.id);
+  validar.campos = ids;
+  return e;
+}
+/** Lleva al campo pendiente: lo centra, lo resalta y le da el foco si se puede escribir en él. */
+function irA(id) {
+  const el = $(id); if (!el) return;
+  const caja = el.closest('.campo') || el.closest('.sec') || el;
+  caja.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  caja.classList.remove('resaltar'); void caja.offsetWidth; caja.classList.add('resaltar');
+  if (/^(INPUT|TEXTAREA)$/.test(el.tagName) && !el.classList.contains('oculto')) setTimeout(() => el.focus({ preventScroll: true }), 350);
+}
+function estadoSecciones() {
+  const fs = faltanSeccion(), nombres = ['Quién agenda', 'Qué atiende', 'La actividad', 'Línea PISCCJ', 'Dónde y cuándo'];
+  fs.forEach((s, i) => {
+    const ok = s.faltan === 0, paso = document.querySelector('#pasos button[data-s="s' + (i + 1) + '"]');
+    $('est' + (i + 1)).textContent = ok ? 'Completo ✓' : 'Faltan ' + s.faltan;
+    $('est' + (i + 1)).classList.toggle('ok', ok); $('s' + (i + 1)).classList.toggle('completa', ok);
+    paso.classList.toggle('listo', ok); paso.querySelector('.pn').textContent = ok ? '✓' : String(i + 1);
+    paso.setAttribute('aria-label', 'Paso ' + (i + 1) + ': ' + nombres[i] + (ok ? ', completo' : ', faltan ' + s.faltan));
+  });
+  return fs;
+}
+function pasoActual() {
+  let actual = 's1';
+  ['s1', 's2', 's3', 's4', 's5'].forEach(id => { if ($(id).getBoundingClientRect().top < 190) actual = id; });
+  document.querySelectorAll('#pasos button').forEach(b => b.classList.toggle('actual', b.dataset.s === actual));
+}
+function progreso() {
+  bloquesCondicionales();
+  const fs = estadoSecciones();
+  const pendientes = validar(), faltan = pendientes.length;
+  const total = fs.reduce((a, s) => a + s.total, 0), pend = fs.reduce((a, s) => a + s.faltan, 0);
+  document.querySelector('#progreso div').style.width = Math.round((total - pend) / total * 100) + '%';
+  $('faltanTxt').innerHTML = faltan ? '<b>Falta: ' + esc(pendientes[0].charAt(0).toLowerCase() + pendientes[0].slice(1)) + '</b>' +
+    (faltan > 1 ? 'y ' + (faltan - 1) + ' más · toque aquí' : 'toque aquí para ir') : '<b>Todo listo</b>revise y agende';
+  textosDireccion();
+  $('btnEnviar').disabled = faltan > 0;
+  $('piiAviso').classList.toggle('oculto', ![...document.querySelectorAll('.pii')].some(el => tienePii(el.value)));
+  avisoLinea();
+  const fr = fechaRango();
+  if (fr.pasada && fr.ok) mostrar('avisoFecha', 'La fecha y hora ya pasaron: la actividad quedará marcada como <b>agendada después de realizada</b>. Lo ideal es agendar antes.', 'alerta');
+  else ocultar('avisoFecha');
+  sincTodas();
+}
+function cambio() { progreso(); guardarBorrador(); }
+
+/* ══════════════ TARJETAS (igual al formulario de problemáticas B2-3.2) ══════════════ */
+function comoTarjetas(id, opc) {
+  const s = $(id); opc = opc || {};
+  if (document.querySelector('.tarjetas[data-para="' + id + '"]')) return;
+  s.classList.add('oculta-visual'); s.tabIndex = -1; s.setAttribute('aria-hidden', 'true');
+  const w = document.createElement('div'); w.className = 'tarjetas'; w.dataset.para = id; w.setAttribute('role', 'radiogroup');
+  const etq = document.querySelector('label[for="' + id + '"]'); if (etq) { etq.id = etq.id || 'etq-' + id; w.setAttribute('aria-labelledby', etq.id); }
+  [...s.options].filter(o => o.value).forEach(o => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'tarjeta'; b.dataset.v = o.value; b.setAttribute('role', 'radio');
+    b.innerHTML = '<span>' + esc(o.textContent) + '</span>' + (opc.desc && opc.desc[o.value] ? '<small>' + esc(opc.desc[o.value]) + '</small>' : '');
+    b.onclick = () => { s.value = o.value; s.dispatchEvent(new Event('change', { bubbles: true })); };
+    w.appendChild(b);
+  });
+  s.insertAdjacentElement('afterend', w);
+  s.addEventListener('change', () => sincTarjetas(id));
+}
+function sincTarjetas(id) {
+  const w = document.querySelector('.tarjetas[data-para="' + id + '"]'); if (!w) return;
+  w.querySelectorAll('.tarjeta').forEach(b => { const on = b.dataset.v === $(id).value; b.classList.toggle('sel', on); b.setAttribute('aria-checked', String(on)); });
+}
+function sincTodas() { document.querySelectorAll('.tarjetas').forEach(w => sincTarjetas(w.dataset.para)); }
+
+/* ══════════════ BORRADOR EN EL TELÉFONO ══════════════ */
+const CAMPOS = ['area', 'funcionario', 'motivoTrans', 'motivoTransOtro', 'upz', 'barrio', 'nombre', 'descripcion', 'enfoque', 'tipoAct', 'enmarca', 'artOtra',
+                'principal', 'meta', 'modalidad', 'direccion', 'fechaAct', 'hora', 'duracion', 'asistentes', 'correo'];
+let tBorrador = null;
+function guardarBorrador() { if (restaurando) return; clearTimeout(tBorrador); tBorrador = setTimeout(guardarBorradorYa, 400); }
+function guardarBorradorYa() {
+  guardar('cv360_ag_borrador', { t: Date.now(), idEnvio, tipoAtencion, caso: casoElegido ? casoElegido.ID_PROBLEMATICA : '', sinTerritorio: $('sinTerritorio').checked,
+    sel: Object.fromEntries(Object.entries(sel).map(([k, x]) => [k, [...x]])), campos: Object.fromEntries(CAMPOS.map(c => [c, $(c).value])) });
+}
+function aplicarCampos(c) {
+  restaurando = true;
+  $('area').value = c.area || ''; pintarFuncionarios(); $('funcionario').value = c.funcionario || '';
+  $('upz').value = c.upz || ''; pintarBarrios(); $('barrio').value = c.barrio || ''; mostrarDerivBarrio();
+  $('enfoque').value = c.enfoque || ''; pintarTipos(); $('tipoAct').value = c.tipoAct || ''; mostrarDefTipo();
+  ['motivoTrans', 'motivoTransOtro', 'nombre', 'descripcion', 'enmarca', 'artOtra', 'principal', 'meta', 'modalidad', 'direccion', 'fechaAct', 'hora', 'duracion', 'asistentes', 'correo']
+    .forEach(k => { if (c[k] !== undefined) $(k).value = c[k]; });
+  restaurando = false;
+}
+function restaurarBorrador() {
+  const b = leer('cv360_ag_borrador');
+  if (!b || !b.campos) return;
+  idEnvio = b.idEnvio || idEnvio;
+  Object.entries(b.sel || {}).forEach(([k, x]) => { if (sel[k]) { sel[k].clear(); x.forEach(y => sel[k].add(y)); } });
+  aplicarCampos(b.campos);
+  $('sinTerritorio').checked = !!b.sinTerritorio;
+  pintarAcompanantes(); pintarArticulacion(); pintarChipsSec();
+  if (b.tipoAtencion) { tipoAtencion = b.tipoAtencion; document.querySelectorAll('#tipoAtencion .opcion').forEach(o => o.classList.toggle('sel', o.dataset.v === b.tipoAtencion)); }
+  if (b.tipoAtencion === 'CASO' && b.campos.barrio) buscarCasos(b.caso || '');
+  mostrar('bannerBorrador', 'Se recuperó un agendamiento sin enviar (' + new Date(b.t).toLocaleString('es-CO') + '). <button type="button" class="btn gr pq" id="btnDescartarB">Descartar borrador</button>', 'info');
+  $('btnDescartarB').onclick = () => { borrar('cv360_ag_borrador'); nuevo(false); ocultar('bannerBorrador'); };
+  progreso();
+}
+/** Enlace desde el formulario de problemáticas: ?caso=DT-…[&barrio=…] → se consulta el caso por su código (como «¿Tiene el código del caso?»),
+ *  así se verifica que siga abierto y funciona también con casos sin barrio del catálogo. */
+function desdeEnlace() {
+  const caso = String(new URLSearchParams(location.search).get('caso') || '').toUpperCase();
+  if (!/^DTH?-\d{8}-\d{3}$/.test(caso)) return false;
+  elegirTipoAtencion('CASO');
+  $('codigoCaso').value = caso;
+  buscarPorCodigo();
+  return true;
+}
+
+/* ══════════════ ENVÍO ══════════════ */
+function payload() {
+  const trans = tipoAtencion === 'TRANSVERSAL', sinT = trans && $('sinTerritorio').checked;
+  return {
+    accion: 'agendar', version: CONFIG.VERSION, id_envio: idEnvio, id_funcionario: $('funcionario').value, acompanantes: [...sel.acomp],
+    tipo_atencion: tipoAtencion, id_problematica: tipoAtencion === 'CASO' && casoElegido ? casoElegido.ID_PROBLEMATICA : '',
+    motivo_transversal: trans ? $('motivoTrans').value : '', motivo_transversal_otro: trans && $('motivoTrans').value === 'Otro' ? $('motivoTransOtro').value.trim() : '',
+    sin_territorio: sinT, cod_barrio: sinT ? '' : $('barrio').value,
+    nombre: $('nombre').value.trim(), descripcion: $('descripcion').value.trim(), enfoque: $('enfoque').value, cod_tipo_act: $('tipoAct').value,
+    enmarca: $('enmarca').value, articulacion: [...sel.art], articulacion_otra: sel.art.has('Otra') ? $('artOtra').value.trim() : '',
+    linea_principal: $('principal').value, lineas_secundarias: [...sel.sec], cod_meta: $('meta').value,
+    direccion: $('direccion').value.trim(), fecha: $('fechaAct').value, hora: $('hora').value, recibir_correo: $('correo').value !== 'No',
+    modalidad: $('modalidad').value, duracion_min: Number($('duracion').value) || '', asistentes_esperados: $('asistentes').value
+  };
+}
+function filasResumen() {
+  const fun = FUN.find(f => f.ID_FUNCIONARIO === $('funcionario').value) || {}, b = barrioPor($('barrio').value);
+  const l = lineaPor($('principal').value), tipo = (CAT.TIPOS_ACTIVIDAD || []).find(t => t.COD_TIPO_ACT === $('tipoAct').value) || {};
+  const sinT = tipoAtencion === 'TRANSVERSAL' && $('sinTerritorio').checked;
+  return [
+    ['Agenda', (fun.NOMBRE_VISIBLE || '') + ' · ' + $('area').value],
+    ['Acompañan', FUN.filter(f => sel.acomp.has(f.ID_FUNCIONARIO)).map(f => f.NOMBRE_VISIBLE).join(', ')],
+    ['Atiende', tipoAtencion === 'CASO' && casoElegido ? casoElegido.ID_PROBLEMATICA + ' · ' + (probPor(casoElegido.COD_PROBLEMATICA).SUBTIPO || '') + ' (' + casoElegido.ESTADO + ' → EN INTERVENCIÓN)'
+      : 'Transversal · ' + ($('motivoTrans').value === 'Otro' ? 'Otro: ' + $('motivoTransOtro').value.trim() : $('motivoTrans').value)],
+    ['Lugar', (sinT ? 'Sede o virtual' : (b ? b.NOMBRE_VISIBLE + ' · UPZ ' + b.UPZ + ' · Zona ' + String(b.ZONA).replace('Z', '') : '')) + ' · ' + $('direccion').value.trim()],
+    ['Modalidad', LISTAS.modalidades && LISTAS.modalidades[$('modalidad').value] || ''],
+    ['Actividad', $('nombre').value.trim()],
+    ['Enfoque', $('enfoque').selectedOptions[0] && $('enfoque').value ? $('enfoque').selectedOptions[0].textContent : ''],
+    ['Tipo', tipo.TIPO_ACTIVIDAD || ''],
+    ['Se enmarca en', $('enmarca').value],
+    ['Articula con', [...sel.art].filter(x => x !== 'Otra').concat(sel.art.has('Otra') ? [$('artOtra').value.trim()] : []).join(', ')],
+    ['Línea principal', l ? textoLinea(l) : ''],
+    ['Secundarias', [...sel.sec].map(c => { const x = lineaPor(c); return x ? x.COD_LINEA + ' · ' + x.LINEA : c; }).join(', ')],
+    ['Atención', lineaFueraDeCandidatas() ? 'La línea principal no está entre las sugeridas para la problemática del caso' : ''],
+    ['Meta PDL', $('meta').value],
+    ['Fecha y hora', $('fechaAct').value + ' · ' + $('hora').value + (fechaRango().pasada ? ' (ya pasó)' : '') +
+      ($('duracion').value && LISTAS.duraciones ? ' · ' + LISTAS.duraciones[$('duracion').value] : '')],
+    ['Asistentes esperados', $('asistentes').value]
+  ].filter(f => f[1]);
+}
+function abrirRevision() {
+  const e = validar();
+  if (e.length) { mostrar('errores', 'Revise: ' + esc(e.join(' · ')), 'error'); $('errores').scrollIntoView({ block: 'center' }); return; }
+  if (CONFIG.REVISION_ANTES_DE_ENVIAR === false) { enviar(); return; }
+  $('revResumen').innerHTML = filasResumen().map(f => '<dt>' + esc(f[0]) + '</dt><dd>' + esc(f[1]) + '</dd>').join('');
+  $('revision').classList.remove('oculto'); $('btnConfirmar').focus();
+}
+async function enviar() {
+  ocultar('revision');
+  const e = validar();
+  if (e.length) { mostrar('errores', 'Revise: ' + esc(e.join(' · ')), 'error'); return; }
+  ocultar('errores');
+  const btn = $('btnEnviar'); btn.disabled = true; btn.textContent = 'Agendando…';
+  const resumen = filasResumen();
+  let r;
+  try { r = await enviarPost(payload()); }
+  catch (err) {
+    btn.textContent = 'Agendar actividad'; progreso();
+    mostrar('errores', 'No hubo conexión con el servicio. El agendamiento sigue guardado en este teléfono: intente de nuevo cuando tenga señal (no se duplica).', 'error');
+    return;
+  }
+  btn.textContent = 'Agendar actividad';
+  if (!r || r.status !== 'ok') { progreso(); mostrar('errores', 'El servicio no aceptó el agendamiento: ' + esc(((r && r.errores) || [r && r.msg || 'respuesta inválida']).join(' · ')), 'error'); $('errores').scrollIntoView({ block: 'center' }); return; }
+  guardar('cv360_ag_ultimo', { area: $('area').value, fun: $('funcionario').value });
+  borrar('cv360_ag_borrador'); ocultar('bannerBorrador');
+  ultimoEnvio = { tipo: tipoAtencion, caso: casoElegido, upz: $('upz').value, barrio: $('barrio').value };
+  mostrarExito(r, resumen);
+}
+/** Copia el código SC- (si el navegador no deja, lo deja seleccionado para copiarlo a mano). */
+async function copiarCodigo() {
+  const cod = $('exitoCodigo').textContent.trim();
+  try { await navigator.clipboard.writeText(cod); $('copiado').textContent = 'Copiado ✓'; }
+  catch (e) {
+    const rg = document.createRange(); rg.selectNodeContents($('exitoCodigo'));
+    const s = window.getSelection(); s.removeAllRanges(); s.addRange(rg);
+    $('copiado').textContent = 'Código seleccionado: use «Copiar» de su teléfono';
+  }
+}
+function mostrarExito(r, resumen) {
+  $('copiado').textContent = '';
+  $('f').classList.add('oculto'); $('barraEnviar').classList.add('oculto'); $('exito').classList.remove('oculto');
+  $('exitoTitulo').textContent = r.repetido ? '✔ Este agendamiento ya estaba registrado' : '✔ Actividad agendada';
+  $('exitoCodigo').textContent = r.codigo;
+  $('exitoMsg').innerHTML = r.repetido ? '<div class="aviso info">Llegó dos veces (por ejemplo, al reintentar sin señal). No se creó otro: este es su código.</div>'
+    : (r.caso ? '<div class="aviso ok">El caso <b>' + esc(r.caso.codigo) + '</b> pasó de ' + esc(r.caso.estado_anterior) + ' a <b>' + esc(r.caso.estado) + '</b> (' + esc(r.caso.n_actividades) + ' actividad(es) en total).</div>'
+               : '<div class="aviso ok">Actividad transversal registrada.</div>') +
+      (r.agendada_despues ? '<div class="aviso alerta">Quedó marcada como agendada después de realizada.</div>' : '');
+  $('exitoResumen').innerHTML = resumen.map(f => '<dt>' + esc(f[0]) + '</dt><dd>' + esc(f[1]) + '</dd>').join('') +
+    (r.repetido ? '' : '<dt>Calendar</dt><dd>' + (r.evento_creado ? 'Evento creado e invitaciones enviadas' : 'Sin evento (ver aviso)') + '</dd><dt>Correo</dt><dd>' + (r.correo_enviado ? 'Enviado' : 'No') + '</dd>');
+  $('exitoAvisos').innerHTML = (r.avisos || []).map(a => '<div class="aviso alerta">' + esc(a) + '</div>').join('');
+  $('btnMismoCaso').classList.toggle('oculto', !(ultimoEnvio && ultimoEnvio.tipo === 'CASO' && ultimoEnvio.caso));
+  window.scrollTo(0, 0);
+}
+function nuevo(mismoCaso) {
+  const prev = ultimoEnvio, area = $('area').value, fun = $('funcionario').value;
+  $('f').reset(); idEnvio = nuevoId(); tipoAtencion = ''; casoElegido = null; casos = [];
+  Object.values(sel).forEach(s => s.clear());
+  document.querySelectorAll('#tipoAtencion .opcion').forEach(o => o.classList.remove('sel'));
+  $('area').value = area; pintarFuncionarios(); $('funcionario').value = fun;
+  pintarBarrios(); pintarTipos(); pintarAcompanantes(); pintarArticulacion(); pintarChipsSec(); pintarCasos(); delete $('enmarca').dataset.tocado;
+  if (mismoCaso && prev && prev.caso) {
+    elegirTipoAtencion('CASO'); $('upz').value = prev.upz; pintarBarrios(); $('barrio').value = prev.barrio; mostrarDerivBarrio(); buscarCasos(prev.caso.ID_PROBLEMATICA);
+  }
+  $('exito').classList.add('oculto'); $('f').classList.remove('oculto'); $('barraEnviar').classList.remove('oculto');
+  ocultar('errores'); ocultar('codigoEstado'); progreso(); window.scrollTo(0, 0);
+}
+
+/* ══════════════ EVENTOS ══════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  $('area').addEventListener('change', () => { pintarFuncionarios(); pintarAcompanantes(); cambio(); });
+  $('funcionario').addEventListener('change', () => { pintarAcompanantes(); cambio(); });
+  document.querySelectorAll('#tipoAtencion .opcion').forEach(o => {
+    o.tabIndex = 0; o.setAttribute('role', 'radio');
+    o.onclick = () => { elegirTipoAtencion(o.dataset.v); cambio(); };
+    o.onkeydown = e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); o.onclick(); } };
+  });
+  $('motivoTrans').addEventListener('change', () => { alCambiarMotivo(); cambio(); });
+  $('sinTerritorio').addEventListener('change', cambio);
+  // un caso sin barrio del catálogo (buscado por código) se conserva: el barrio elegido es el de la actividad
+  const recargarCasos = () => { if (tipoAtencion === 'CASO' && !(casoElegido && casoElegido._sinBarrio)) buscarCasos(); };
+  $('upz').addEventListener('change', () => { pintarBarrios(); recargarCasos(); cambio(); });
+  $('barrio').addEventListener('change', () => { mostrarDerivBarrio(); recargarCasos(); cambio(); });
+  $('enfoque').addEventListener('change', () => { pintarTipos(); cambio(); });
+  $('tipoAct').addEventListener('change', () => { mostrarDefTipo(); cambio(); });
+  $('enmarca').addEventListener('change', () => { $('enmarca').dataset.tocado = '1'; cambio(); });
+  $('principal').addEventListener('change', () => { pintarChipsSec(); sugerirLinea(); cambio(); });
+  ['motivoTransOtro', 'nombre', 'descripcion', 'artOtra', 'direccion', 'fechaAct', 'hora', 'meta', 'correo'].forEach(id => $(id).addEventListener('input', cambio));
+  ['meta', 'correo', 'fechaAct', 'hora'].forEach(id => $(id).addEventListener('change', cambio));
+  $('btnBuscarCodigo').onclick = buscarPorCodigo;
+  $('codigoCaso').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); buscarPorCodigo(); } });
+  $('btnEnviar').onclick = abrirRevision;
+  $('btnConfirmar').onclick = enviar;
+  $('btnCorregir').onclick = () => ocultar('revision');
+  $('btnOtra').onclick = () => nuevo(false);
+  $('btnCopiar').onclick = copiarCodigo;
+  $('faltanTxt').onclick = () => { if (validar.campos && validar.campos.length) irA(validar.campos[0]); };
+  $('faltanTxt').onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('faltanTxt').onclick(); } };
+  $('modalidad').addEventListener('change', cambio); $('duracion').addEventListener('change', cambio); $('asistentes').addEventListener('change', cambio);
+  $('btnMismoCaso').onclick = () => nuevo(true);
+  document.querySelectorAll('#pasos button').forEach(b => b.addEventListener('click', () => $(b.dataset.s).scrollIntoView({ behavior: 'smooth', block: 'start' })));
+  window.addEventListener('scroll', pasoActual, { passive: true });
+  cargar();
+});
+</script>
+</body>
+</html>
