@@ -315,7 +315,7 @@ input[type=time]:focus{outline:none;border-color:var(--azul);box-shadow:0 0 0 4p
 <script>
 /* ══════════════ CONFIGURACIÓN (completar al desplegar) ══════════════ */
 const CONFIG = {
-  VERSION: 'AG-HTML-1.1',
+  VERSION: 'AG-HTML-1.2',
   SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwi6BllrgobQjspAHppkSxqTiwubOYMBuJEQJ3Iq6KsomEeRhyfSqvYLtOFPEWRTXY/exec',   // el MISMO servicio del formulario de problemáticas (Problematicas.gs v3.2 + Agendamiento.gs)
   REVISION_ANTES_DE_ENVIAR: true,
   CACHE_HORAS: 24, DIAS_MAX_ATRAS: 30, MAX_SECUNDARIAS: 2
@@ -336,6 +336,7 @@ function mostrar(id, html, tipo) { const el = $(id); el.className = 'aviso ' + (
 function ocultar(id) { $(id).classList.add('oculto'); }
 const sel = { acomp: new Set(), art: new Set(), sec: new Set() };
 let CAT = null, FUN = [], LISTAS = null, tipoAtencion = '', casos = [], casoElegido = null, idEnvio = nuevoId(), restaurando = false, ultimoEnvio = null, pedidoCasos = 0;
+let soloCaso = false;   // AG-HTML 1.2: si el caso llegó por su código, se muestra solo ese (los demás del barrio, a pedido)
 
 async function api(params) {
   let d;
@@ -515,6 +516,7 @@ function mostrarDerivBarrio() {
 }
 async function buscarCasos(preferido) {
   const cb = $('barrio').value, n = ++pedidoCasos;
+  if (!preferido) soloCaso = false;
   casos = []; if (!preferido) casoElegido = null; pintarCasos();
   if (!cb) { mostrar('casosEstado', 'Elija el barrio para ver sus casos abiertos.', 'info'); return; }
   mostrar('casosEstado', 'Buscando casos abiertos del barrio…', 'info');
@@ -534,7 +536,9 @@ async function buscarCasos(preferido) {
 }
 function pintarCasos() {
   const cont = $('casos'); cont.innerHTML = '';
-  casos.forEach(c => {
+  const enfoque = soloCaso && casoElegido && casos.some(c => c.ID_PROBLEMATICA === casoElegido.ID_PROBLEMATICA);
+  const visibles = enfoque ? casos.filter(c => c.ID_PROBLEMATICA === casoElegido.ID_PROBLEMATICA) : casos;
+  visibles.forEach(c => {
     const p = probPor(c.COD_PROBLEMATICA), pr = norm(c.PRIORIDAD);
     const d = document.createElement('div'); d.className = 'caso' + (casoElegido && casoElegido.ID_PROBLEMATICA === c.ID_PROBLEMATICA ? ' sel' : '');
     d.tabIndex = 0; d.setAttribute('role', 'radio'); d.dataset.codigo = c.ID_PROBLEMATICA;
@@ -548,6 +552,12 @@ function pintarCasos() {
     d.onclick = elegir; d.onkeydown = e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); elegir(); } };
     cont.appendChild(d);
   });
+  if (enfoque && casos.length > 1) {   // los demás casos del barrio quedan ocultos para no elegir uno equivocado por error
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'btn gr pq'; b.id = 'btnOtrosCasos'; b.style.marginTop = '8px';
+    b.textContent = 'Ver los otros ' + (casos.length - 1) + ' casos abiertos del barrio';
+    b.onclick = () => { soloCaso = false; pintarCasos(); };
+    cont.appendChild(b);
+  }
   sugerirLinea();
   pintarChipsSec();
 }
@@ -610,6 +620,7 @@ async function buscarPorCodigo() {
   sel.sec.clear(); $('principal').value = '';   // otro caso: la línea se vuelve a sugerir según su problemática
   if (b) {
     $('upz').value = b.UPZ; pintarBarrios(); $('barrio').value = b.COD_BARRIO; mostrarDerivBarrio();
+    soloCaso = true;
     await buscarCasos(c);
   } else {   // barrio escrito a mano («Otro»): no aparece en la lista por barrio; se elige directo y se pide el barrio de la actividad
     casoElegido = { ID_PROBLEMATICA: c, COD_AREA_CASO: d.COD_AREA_CASO, COD_PROBLEMATICA: d.COD_PROBLEMATICA, ESTADO: d.ESTADO, PRIORIDAD: d.PRIORIDAD,
@@ -888,7 +899,7 @@ function nuevo(mismoCaso) {
   $('area').value = area; pintarFuncionarios(); $('funcionario').value = fun;
   pintarBarrios(); pintarTipos(); pintarAcompanantes(); pintarArticulacion(); pintarChipsSec(); pintarCasos(); delete $('enmarca').dataset.tocado;
   if (mismoCaso && prev && prev.caso) {
-    elegirTipoAtencion('CASO'); $('upz').value = prev.upz; pintarBarrios(); $('barrio').value = prev.barrio; mostrarDerivBarrio(); buscarCasos(prev.caso.ID_PROBLEMATICA);
+    elegirTipoAtencion('CASO'); $('upz').value = prev.upz; pintarBarrios(); $('barrio').value = prev.barrio; mostrarDerivBarrio(); soloCaso = true; buscarCasos(prev.caso.ID_PROBLEMATICA);
   }
   $('exito').classList.add('oculto'); $('f').classList.remove('oculto'); $('barraEnviar').classList.remove('oculto');
   ocultar('errores'); ocultar('codigoEstado'); progreso(); window.scrollTo(0, 0);
