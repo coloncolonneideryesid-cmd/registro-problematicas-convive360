@@ -374,10 +374,12 @@ footer{text-align:center;font-size:12px;color:var(--t3);padding:8px 0 0;line-hei
 <script>
 /* ══════════════ CONFIGURACIÓN (completar al desplegar; ver C-03_GUIA_DE_DESPLIEGUE.md) ══════════════ */
 const CONFIG = {
-  VERSION: 'B2-3.2',
+  VERSION: 'B2-3.3',
   SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwi6BllrgobQjspAHppkSxqTiwubOYMBuJEQJ3Iq6KsomEeRhyfSqvYLtOFPEWRTXY/exec',   // proyecto Apps Script con Problematicas.gs
   FORM_C_URL: 'https://docs.google.com/forms/d/1RGfVaGkzmmUNXLKkWn1Wm2LsNo_8K48yCzBN41Vx6XE/viewform',
-  ENTRY: { PROBLEMATICA: '', DESCRIPCION: '', UPZ: '', LINEA_PRINCIPAL: '', EJE: '' },   // entry.N del Agendamiento (Paso 7 de la guía)
+  // B2-3.3 (Módulo 2): formulario HTML del Agendamiento. Si está puesto, «Agendar» lo abre con el caso ya elegido (?caso=&barrio=).
+  AGENDAMIENTO_URL: 'https://coloncolonneideryesid-cmd.github.io/registro-problematicas-convive360/agendamiento/',
+  ENTRY: { PROBLEMATICA: '', DESCRIPCION: '', UPZ: '', LINEA_PRINCIPAL: '', EJE: '' },   // respaldo: entry.N del Google Form anterior (solo si AGENDAMIENTO_URL está vacío)
   UPZ_TEXTO_EN_C: { '32': '32 - San Blas', '33': '33 - Sosiego', '34': '34 - 20 de Julio', '50': '50 - La Gloria', '51': '51 - Los Libertadores' },
   BBOX: { latMin: 4.495, latMax: 4.620, lonMin: -74.130, lonMax: -74.015 },   // respaldo si el mapa no carga
   REVISION_ANTES_DE_ENVIAR: true,   // ventana «Revise antes de registrar» (las pruebas automáticas la apagan)
@@ -1068,13 +1070,18 @@ function exito(d) {
     ['Días entre el hecho y el registro', d.dias_reporte]]);
   $('btnAgendar').classList.remove('oculto');
   $('btnAgendar').href = enlaceAgendar(d);
-  $('agendarNota').textContent = CONFIG.ENTRY.PROBLEMATICA ? '' : 'El Agendamiento aún no tiene la pregunta "Problemática que atiende": el código se copia en la descripción.';
+  $('agendarNota').textContent = (CONFIG.AGENDAMIENTO_URL || CONFIG.ENTRY.PROBLEMATICA) ? '' : 'El Agendamiento aún no tiene la pregunta "Problemática que atiende": el código se copia en la descripción.';
 }
 function exitoSinConexion() {
   mostrarExito('📶 Guardado en el teléfono', 'No hay conexión. El registro quedó guardado y se enviará solo cuando vuelva la señal; el código del caso llegará entonces.', '', []);
   $('btnAgendar').classList.add('oculto'); $('agendarNota').textContent = '';
 }
 function enlaceAgendar(d) {
+  if (CONFIG.AGENDAMIENTO_URL) {   // B2-3.3: Agendamiento HTML (Módulo 2); allí se consulta el caso por su código
+    const q = new URLSearchParams({ caso: d.codigo });
+    if (d.caso && d.caso.COD_BARRIO) q.set('barrio', d.caso.COD_BARRIO);
+    return CONFIG.AGENDAMIENTO_URL + (CONFIG.AGENDAMIENTO_URL.indexOf('?') < 0 ? '?' : '&') + q.toString();
+  }
   const p = new URLSearchParams({ usp: 'pp_url' }), E = CONFIG.ENTRY;
   if (E.PROBLEMATICA) p.set(E.PROBLEMATICA, d.codigo);
   if (E.DESCRIPCION) p.set(E.DESCRIPCION, 'Atiende la problemática ' + d.codigo + '. ');
