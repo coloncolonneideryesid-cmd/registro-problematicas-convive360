@@ -315,7 +315,7 @@ input[type=time]:focus{outline:none;border-color:var(--azul);box-shadow:0 0 0 4p
 <script>
 /* ══════════════ CONFIGURACIÓN (completar al desplegar) ══════════════ */
 const CONFIG = {
-  VERSION: 'AG-HTML-1.2',
+  VERSION: 'AG-HTML-1.3',
   SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwi6BllrgobQjspAHppkSxqTiwubOYMBuJEQJ3Iq6KsomEeRhyfSqvYLtOFPEWRTXY/exec',   // el MISMO servicio del formulario de problemáticas (Problematicas.gs v3.2 + Agendamiento.gs)
   REVISION_ANTES_DE_ENVIAR: true,
   CACHE_HORAS: 24, DIAS_MAX_ATRAS: 30, MAX_SECUNDARIAS: 2
@@ -655,12 +655,38 @@ function faltanSeccion() {
   return [
     [v('area'), v('funcionario')],
     [!!tipoAtencion, territorioOk(), tipoAtencion === 'CASO' ? !!casoElegido : (trans ? v('motivoTrans') && ($('motivoTrans').value !== 'Otro' || $('motivoTransOtro').value.trim().length >= 5) : false)],
-    [$('nombre').value.trim().length >= 5, $('descripcion').value.trim().length >= 10, v('enfoque'), v('tipoAct'), v('enmarca'), art],
+    [$('nombre').value.trim().length >= 5 && !textoSinSentido_($('nombre').value, 1), $('descripcion').value.trim().length >= 10 && !textoSinSentido_($('descripcion').value, 2), v('enfoque'), v('tipoAct'), v('enmarca'), art],
     [v('principal'), sel.sec.size <= CONFIG.MAX_SECUNDARIAS],
-    [v('modalidad'), $('direccion').value.trim().length >= minDireccion(), v('fechaAct') && fechaRango().ok, /^\d{2}:\d{2}$/.test($('hora').value), v('duracion'), v('asistentes'),
+    [v('modalidad'), $('direccion').value.trim().length >= minDireccion() && !textoSinSentido_($('direccion').value, 0), v('fechaAct') && fechaRango().ok, /^\d{2}:\d{2}$/.test($('hora').value), v('duracion'), v('asistentes'),
      ![...document.querySelectorAll('.pii')].some(el => tienePii(el.value))]
   ].map(a => ({ total: a.length, faltan: a.filter(x => !x).length }));
 }
+const TECLADO_ = ['asdf', 'sdfg', 'dfgh', 'fghj', 'ghjk', 'hjkl', 'qwer', 'wert', 'erty', 'zxcv', 'xcvb', 'cvbn', 'vbnm', 'jklñ'];
+function textoSinSentido_(texto, minPalabras) {
+  const sinTilde = x => x.normalize('NFD').replace(/[̀-ͯ]/g, '');
+  const limpio = String(texto || '').split(/\s+/)
+    .filter(w => w && !/^(https?:|www\.|#)/i.test(w) && w.indexOf('@') < 0)   // enlaces, etiquetas y correos (los correos los frena el control de datos personales)
+    .join(' ');
+  const palabras = sinTilde(limpio).split(/[^A-Za-zÑñ]+/).filter(Boolean);   // separa también por guiones, puntos y números
+  const esSigla = w => w.length <= 6 && w === w.toUpperCase();               // SDSCJ, LGBTQ, CDC, SITP
+  const fichas = [];
+  for (const original of palabras) {
+    const w = original.toLowerCase();
+    if (/([a-zñ])\1{3,}/.test(w)) return 'repite la misma letra muchas veces';
+    if (!esSigla(original)) fichas.push(w);
+  }
+  for (const w of fichas) {
+    if (/[bcdfghjklmnñpqrstvwxyz]{5,}/.test(w)) return 'tiene muchas consonantes seguidas';
+    if (TECLADO_.some(k => w.indexOf(k) >= 0)) return 'parece tecleado al azar';
+    if (/^([a-zñ]{3,4})\1+$/.test(w) || /([a-zñ]{2,4})\1{2,}/.test(w)) return 'repite sílabas';   // asdasd, sdfsdfsdf (no «púrpura», «mamá», «dada»)
+  }
+  if (fichas.some(w => w.length > 25)) return 'tiene palabras pegadas (faltan espacios)';
+  const letras = fichas.join('');
+  if (letras.length >= 12 && (letras.match(/[aeiou]/g) || []).length / letras.length < 0.15) return 'casi no tiene vocales';
+  const conVocal = palabras.filter(w => w.length >= 2 && /[aeiouAEIOU]/.test(w)).length;
+  if (conVocal < (minPalabras || 0)) return 'tiene muy pocas palabras';
+  return '';
+}   // la arma C05_construir_formulario.py copiando textoSinSentido_ de Agendamiento.gs (una sola regla)
 /** Pendientes en el orden del formulario; validar.campos[i] es el campo del pendiente i (la barra inferior lleva allí). */
 function validar() {
   const e = [], ids = [], add = (m, id) => { e.push(m); ids.push(id); };
@@ -668,19 +694,24 @@ function validar() {
   if (!tipoAtencion) add('Indique si atiende un caso o es transversal', 'tipoAtencion');
   if (tipoAtencion === 'TRANSVERSAL' && !v('motivoTrans')) add('Elija el motivo de la actividad transversal', 'motivoTrans');
   if ($('motivoTrans').value === 'Otro' && tipoAtencion === 'TRANSVERSAL' && $('motivoTransOtro').value.trim().length < 5) add('Escriba cuál es el motivo «Otro»', 'motivoTransOtro');
+  else if ($('motivoTrans').value === 'Otro' && tipoAtencion === 'TRANSVERSAL' && textoSinSentido_($('motivoTransOtro').value, 1)) add('El motivo «Otro» parece escrito al azar', 'motivoTransOtro');
   if (tipoAtencion && !territorioOk()) add(v('upz') ? 'Elija el barrio' : 'Elija la UPZ y el barrio', v('upz') ? 'barrio' : 'upz');
   if (tipoAtencion === 'CASO' && !casoElegido) add('Elija el caso que atiende', 'casos');
   if ($('nombre').value.trim().length < 5) add('Escriba el nombre de la actividad', 'nombre');
+  else if (textoSinSentido_($('nombre').value, 1)) add('El nombre parece escrito al azar: use palabras', 'nombre');
   if ($('descripcion').value.trim().length < 10) add('Describa la actividad', 'descripcion');
+  else if (textoSinSentido_($('descripcion').value, 2)) add('La descripción parece escrita al azar: use palabras', 'descripcion');
   if (!v('enfoque')) add('Elija el enfoque', 'enfoque');
   if (!v('tipoAct')) add('Elija el tipo de actividad', 'tipoAct');
   if (!v('enmarca')) add('Elija en qué se enmarca', 'enmarca');
   if (sel.art.has('Otra') && $('artOtra').value.trim().length < 2) add('Escriba con qué otra entidad articula', 'artOtra');
+  else if (sel.art.has('Otra') && textoSinSentido_($('artOtra').value, 0)) add('La otra entidad parece escrita al azar', 'artOtra');
   if (!v('principal')) add('Elija la línea PISCCJ principal', 'principal');
   if (sel.sec.size > CONFIG.MAX_SECUNDARIAS) add('Máximo ' + CONFIG.MAX_SECUNDARIAS + ' líneas secundarias', 'chipsSec');
   if (!v('modalidad')) add('Indique si es presencial, virtual o mixta', 'modalidad');
   if ($('direccion').value.trim().length < minDireccion())
     add($('modalidad').value === 'VIRTUAL' ? 'Escriba la plataforma de la reunión' : 'Escriba una dirección que permita llegar (mínimo 8 caracteres)', 'direccion');
+  else if (textoSinSentido_($('direccion').value, 0)) add('La dirección parece escrita al azar: escriba el lugar y una referencia', 'direccion');
   if (!v('fechaAct')) add('Indique la fecha', 'fechaAct'); else if (!fechaRango().ok) add('La fecha debe estar entre hace ' + CONFIG.DIAS_MAX_ATRAS + ' días y dentro de un año', 'fechaAct');
   if (!/^\d{2}:\d{2}$/.test($('hora').value)) add('Indique la hora de inicio', 'hora');
   if (!v('duracion')) add('Indique cuánto dura', 'duracion');
